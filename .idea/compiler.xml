@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="marketing-xc-consumer" />
+        <module name="marketing-api" />
+        <module name="marketing-data-monkey" />
+        <module name="marketing-xc-general" />
+        <module name="marketing-inner-api" />
+        <module name="marketing-data-bridge" />
+        <module name="marketing-rule-scheduler" />
+        <module name="marketing-ai-mq-consumer" />
+        <module name="mybatis-generator" />
+        <module name="marketing-tools" />
+        <module name="marketing-check" />
+        <module name="marketing-task" />
+        <module name="marketing-data-relay-service" />
+        <module name="marketing-mq-consumer" />
+        <module name="marketing-cs" />
+        <module name="marketing-ai-data-push-down" />
+        <module name="marketing-push-task" />
+        <module name="marketing-sync" />
+        <module name="marketing-utils" />
+        <module name="marketing-xc-loop-cycle" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

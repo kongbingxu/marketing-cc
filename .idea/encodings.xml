@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/marketing/marketing-ai-data-push-down/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-ai-data-push-down/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-ai-data-push-down/src/main/resources/dev" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-ai-mq-consumer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-ai-mq-consumer/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-ai-mq-consumer/src/main/resources/dev" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-api/src/main/resources/dev" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-check/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-check/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-cs/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-cs/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-data-bridge/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-data-bridge/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-data-monkey/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-data-monkey/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-data-relay-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-data-relay-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-inner-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-inner-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-mq-consumer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-mq-consumer/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-mq-consumer/src/main/resources/dev" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-push-task/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-push-task/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-rule-scheduler/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-rule-scheduler/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-sync/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-sync/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-task/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-task/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-tools/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-tools/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-utils/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-utils/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-consumer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-consumer/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-consumer/src/main/resources/dev" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-general/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-general/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-loop-cycle/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/marketing-xc-loop-cycle/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/mybatis-generator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/mybatis-generator/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/marketing/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
