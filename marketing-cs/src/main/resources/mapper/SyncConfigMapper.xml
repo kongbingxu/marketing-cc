@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.SyncConfigMapper">
+	<select id="queryConfig" resultType="com.br.marketing.entity.SyncConfig" parameterType="java.lang.String">
+		select *
+		from b_sync_config
+		where status = 1
+		  and type = #{type}
+		order by create_time desc;
+	</select>
+	<select id="queryConfigByTypeAndTargetType" resultType="com.br.marketing.entity.SyncConfig">
+		select * from b_sync_config where status=1 and type=#{type}
+		<if test="targetTypes != null and targetTypes.size()>0">
+			and target_type in
+			<foreach collection="targetTypes" item="targetType" separator="," close=")" open="(">
+				'${targetType}'
+			</foreach>
+		</if>
+		order by create_time desc;
+	</select>
+	<select id="queryConfigByConditaion" resultType="com.br.marketing.entity.SyncConfig"
+			parameterType="com.br.marketing.entity.SyncConfig">
+		select *
+		from b_sync_config
+		where status = 1
+		  and api_code = #{apiCode}
+		  and type = #{type}
+		  and data_type = #{dataType}
+	</select>
+	<insert id="insertConfig" parameterType="com.br.marketing.entity.SyncConfig">
+		INSERT INTO `b_sync_config` (`api_code`,
+									 `type`,
+									 `src_path`,
+									 `target_path`,
+									 `suffix`,
+			`check_finish`,
+			`check_success`,
+			`status`,
+			`remark`,
+			`src_type`,
+			`src_sftp_host`,
+			`src_sftp_port`,
+			`src_sftp_user`,
+			`src_sftp_pwd`,
+			`target_type`,
+			`target_sftp_host`,
+			`target_sftp_port`,
+			`target_sftp_user`,
+			`target_sftp_pwd`,
+			`create_time`
+		)
+		VALUES
+			(
+				#{apiCode},
+				#{type},
+				#{srcPath},
+				#{targetPath},
+				#{suffix},
+				#{checkFinish},
+				#{checkSuccess},
+				#{status},
+				#{remark},
+				#{srcSftpHost},
+				#{srcSftpPort},
+				#{srcSftpUser},
+				#{srcSftpPwd},
+				#{targetSftpHost},
+				#{targetSftpPort},
+				#{targetSftpUser},
+				#{targetSftpPwd},
+				now()
+			)
+	</insert>
+
+	<select id="getSftpList" resultType="com.br.marketing.vo.SyncConfigEditVO">
+        select id
+             , api_code
+             , src_path         as srcPath
+             , target_path      as targetPath
+             , type             as type
+             , data_type        as dataType
+             , suffix           as suffix
+             , is_unzip                    as isUnzip
+             , unzip_filename_charset      as unzipFilenameCharset
+             , src_sftp_host    as srcSftpHost
+             , src_sftp_port    as srcSftpPort
+             , src_sftp_user    as srcSftpUser
+             , src_sftp_pwd     as srcSftpPwd
+             , target_sftp_host as targetSftpHost
+             , target_sftp_port as targetSftpPort
+             , target_sftp_user as targetSftpUser
+             , target_sftp_pwd  as targetSftpPwd
+             , src_type         as srcType
+             , target_type      as targetType
+		     , execute_time      as executeTime
+        from b_sync_config sc
+        <where>
+            status = 1
+            <if test="apiCode != null and apiCode.trim() neq ''">
+                and api_code like CONCAT('%', #{apiCode}, '%')
+            </if>
+            <if test="dataType != null">
+                and data_type = #{dataType}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+</mapper>

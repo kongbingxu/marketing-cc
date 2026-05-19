@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.AutoCheckConfigMapper" >
+    <!-- 根据API编码和场景编码查询配置信息 -->
+    <select id="selectByApiCodesAndSceneCodes" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM b_auto_check_config
+        WHERE is_deleted = 0
+        <if test="apiCodeList != null and apiCodeList.size() > 0">
+            AND api_code IN
+            <foreach collection="apiCodeList" item="apiCode" open="(" close=")" separator=",">
+                #{apiCode}
+            </foreach>
+        </if>
+        <if test="sceneCodeList != null and sceneCodeList.size() > 0">
+            AND scene_code IN
+            <foreach collection="sceneCodeList" item="sceneCode" open="(" close=")" separator=",">
+                #{sceneCode}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectByApiCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM b_auto_check_config
+        WHERE is_deleted = 0
+        AND api_code = #{apiCode}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 批量插入配置 -->
+    <insert id="batchInsert">
+        INSERT INTO b_auto_check_config
+        (api_code, scene_code, `table_name`, field_name, is_deleted, create_time, update_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.apiCode}, #{item.sceneCode}, #{item.tableName}, #{item.fieldName}, 0, NOW(), NOW())
+        </foreach>
+    </insert>
+
+    <!-- 批量删除配置 -->
+    <update id="batchDelete">
+        UPDATE b_auto_check_config
+        SET
+        is_deleted = 1,
+        update_time = NOW()
+        WHERE id IN
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item.id}
+        </foreach>
+    </update>
+
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.SushangCallRecordDataMapper">
+
+    <select id="getLastedCallData" resultType="com.br.marketing.entity.SushangCallRecordData">
+        select *
+        from b_sushang_call_record_data
+        where local_id = #{local_id}
+          and cust_num = #{cust_num}
+        <![CDATA[  and call_time <= #{minDealTime} ]]>
+        order by call_time desc limit 1
+    </select>
+
+    <select id="getCallRecordList" resultType="com.br.marketing.entity.SushangCallRecordData">
+        select *
+        from b_sushang_call_record_data
+        where local_id = #{local_id}
+          and cust_num = #{cust_num}
+          and <![CDATA[call_time >= #{callTime}
+        ]]>
+
+    </select>
+
+
+    <select id="getHalfYearCallRecordtikv_" resultType="com.br.marketing.entity.SushangCallRecordData">
+        Select *
+        From b_sushang_call_record_data
+        where local_id =#{local_id}
+        and  <![CDATA[call_time >= #{beginDate} and call_time <= #{endDate}]]>
+        order by call_time asc ,id asc limit #{limitStart},#{pageSize};
+    </select>
+
+
+</mapper>

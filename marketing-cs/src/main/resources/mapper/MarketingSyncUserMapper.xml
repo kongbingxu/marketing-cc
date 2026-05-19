@@ -1,0 +1,1246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.MarketingSyncUserMapper">
+    <insert id="insertMarketingSyncUser" parameterType="com.br.marketing.entity.MarketingSyncUser">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into b_marketing_sync_${apiCode}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="apiCode != null">
+                api_code,
+            </if>
+            <if test="cusBatch != null">
+                cus_batch,
+            </if>
+            <if test="requestBatch != null">
+                request_batch,
+            </if>
+            <if test="custNum != null">
+                cust_num,
+            </if>
+            <if test="operateType != null">
+                operate_type,
+            </if>
+            <if test="idCard != null">
+                id_card,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="cell != null">
+                cell,
+            </if>
+            <if test="cellMd5 != null" >
+                cell_md5,
+            </if>
+            <if test="cellSha256 != null" >
+                cell_sha256,
+            </if>
+            <if test="cellOriginal != null" >
+                cell_original,
+            </if>
+            <if test="idCardOriginal != null" >
+                id_card_original,
+            </if>
+            <if test="nameOriginal != null" >
+                name_original,
+            </if>
+            <if test="groupType != null">
+                group_type,
+            </if>
+            <if test="userType != null">
+                user_type,
+            </if>
+            <if test="registerDate != null">
+                register_date,
+            </if>
+            <if test="reserveField1 != null">
+                reserve_field1,
+            </if>
+            <if test="reserveField2 != null">
+                reserve_field2,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="appletDate != null">
+                applet_date,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="failType != null">
+                fail_type,
+            </if>
+            <if test="appletTime != null">
+                applet_time,
+            </if>
+            <if test="isTask != null">
+                is_task,
+            </if>
+            <if test="taskTime != null">
+                task_time,
+            </if>
+            <if test="isRepeat != null">
+                is_repeat,
+            </if>
+            <if test="fingerprint != null">
+                fingerprint,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="apiCode != null">
+                #{apiCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cusBatch != null">
+                #{cusBatch,jdbcType=VARCHAR},
+            </if>
+            <if test="requestBatch != null">
+                #{requestBatch,jdbcType=VARCHAR},
+            </if>
+            <if test="custNum != null">
+                #{custNum,jdbcType=VARCHAR},
+            </if>
+            <if test="operateType != null">
+                #{operateType,jdbcType=VARCHAR},
+            </if>
+            <if test="idCard != null">
+                #{idCard,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="cell != null">
+                #{cell,jdbcType=VARCHAR},
+            </if>
+            <if test="cellMd5 != null" >
+                #{cellMd5,jdbcType=VARCHAR},
+            </if>
+            <if test="cellSha256 != null" >
+                #{cellSha256,jdbcType=VARCHAR},
+            </if>
+            <if test="cellOriginal != null" >
+                #{cellOriginal,jdbcType=VARCHAR},
+            </if>
+            <if test="idCardOriginal != null" >
+                #{idCardOriginal,jdbcType=VARCHAR},
+            </if>
+            <if test="nameOriginal != null" >
+                #{nameOriginal,jdbcType=VARCHAR},
+            </if>
+            <if test="groupType != null">
+                #{groupType,jdbcType=VARCHAR},
+            </if>
+            <if test="userType != null">
+                #{userType,jdbcType=VARCHAR},
+            </if>
+            <if test="registerDate != null">
+                #{registerDate,jdbcType=VARCHAR},
+            </if>
+            <if test="reserveField1 != null">
+                #{reserveField1,jdbcType=VARCHAR},
+            </if>
+            <if test="reserveField2 != null">
+                #{reserveField2,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="appletDate != null">
+                #{appletDate,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="failType != null">
+                #{failType,jdbcType=VARCHAR},
+            </if>
+            <if test="appletTime != null">
+                #{appletTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isTask != null">
+                #{isTask,jdbcType=INTEGER},
+            </if>
+            <if test="taskTime != null">
+                #{taskTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isRepeat != null">
+                #{isRepeat,jdbcType=INTEGER},
+            </if>
+            <if test="fingerprint != null">
+                #{fingerprint,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <select id="selectMarketingSyncUserById" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where id = #{id}
+    </select>
+    <select id="minId" resultType="java.lang.Long">
+        select min(id) from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+        <if test="dataType!=null">
+            and is_task = #{dataType}
+        </if>
+        and user_type in
+        <foreach collection="userTypes" item="userType" open="(" separator="," close=")">
+            #{userType}
+        </foreach>
+    </select>
+    <select id="maxId" resultType="java.lang.Long">
+        select max(id) from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+        <if test="dataType!=null">
+            and is_task = #{dataType}
+        </if>
+        and user_type in
+        <foreach collection="userTypes" item="userType" open="(" separator="," close=")">
+            #{userType}
+        </foreach>
+    </select>
+    <select id="getUserById" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        where <![CDATA[  id >= #{minId} and id <= #{maxId} ]]>
+        <if test="dataType != null">
+            and is_task = #{dataType}
+        </if>
+    </select>
+    <select id="selectSynsUserByCustNumLast" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+        order by applet_time desc limit 1;
+    </select>
+    <select id="selectSynsUserByCustNumLastWithStatus" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum} and status = 1 and is_repeat in (1,2)
+        order by applet_time desc limit 1;
+    </select>
+
+    <select id="selectSynsUserByCellLast" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cell = #{cell}
+          and status = 1
+        order by create_time desc limit 1;
+    </select>
+
+    <select id="getNewestByCustNums" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select b.* from
+        (
+        select cust_num,max(create_time) as create_time
+        from b_marketing_sync_${apiCode} a
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.create_time = b.create_time
+    </select>
+    <update id="updateSyncUserStatus">
+        update b_marketing_sync_${apiCode}
+        set is_task = #{isTask}
+        where id = #{id}
+    </update>
+
+    <update id="updateSyncUserCaseEffective">
+        update b_marketing_sync_${apiCode} set status = 2 , fail_type = CONCAT_WS(',',fail_type,'数据失效剔除') where status =
+        1 and cust_num in
+        <foreach collection="uIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="getSyncUserLastByCustNums" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select b.* from
+        (
+        select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode} a
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time
+    </select>
+
+    <select id="getSyncUserLastByCustNumsAndStatus" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select b.id, b.cus_batch, b.cust_num, b.id_card, b.name, b.cell, b.user_type, b.reserve_field1,
+        b.reserve_field2, b.request_batch, b.cell_md5, b.cell_sha256, b.group_type, b.operate_type, b.register_date,
+        b.create_time,b.update_time, b.applet_date, b.applet_time from
+        (select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        and status=1
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time where
+        b.status=1
+    </select>
+
+    <select id="getSyncUserLastByCustNumsAndStatusAndDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select b.id, b.cus_batch, b.cust_num, b.id_card, b.name, b.cell, b.user_type, b.reserve_field1,
+        b.reserve_field2, b.create_time,b.update_time, b.applet_date, b.applet_time from
+        (select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        <if test="limitDate !=null and limitDate !=''">
+            <![CDATA[  and applet_date <=#{limitDate} ]]>
+        </if>
+        and status=1
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time where
+        b.status=1
+        <if test="limitDate !=null and limitDate !=''">
+            <![CDATA[  and b.applet_date <=#{limitDate} ]]>
+        </if>
+    </select>
+
+    <select id="getSyncUserLastByInAppletDateList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="transferSyncUserList" item="transfer" open="(" separator="," close=")">
+            #{transfer.custNum}
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size()>0">
+                and (applet_date) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time where
+        b.status=1
+    </select>
+
+    <select id="getSyncUserLastByInAppletDateUserTypeList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cust_num,user_type,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="transferSyncUserList" item="transfer" open="(" separator="," close=")">
+            #{transfer.custNum}
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size()>0">
+                and (applet_date,user_type) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate},#{item.userType})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1
+        and is_repeat in (1,2)
+        group by cust_num,user_type
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.user_type = b.user_type and
+        a.applet_time = b.applet_time where
+        b.status=1 and b.is_repeat in (1,2)
+    </select>
+
+    <select id="getSyncUserLastByNotInAppletDateList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="transferSyncUserList" item="transfer" open="(" separator="," close=")">
+            #{transfer.custNum}
+        </foreach>
+        <if test="configList != null and configList.size()>0">
+            and (applet_date) not in
+            <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                (#{item.appletDate})
+            </foreach>
+        </if>
+        and status=1
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time where
+        b.status=1
+    </select>
+
+    <select id="getSyncUserLastByNotInAppletDateUserTypeList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cust_num,user_type,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="transferSyncUserList" item="transfer" open="(" separator="," close=")">
+            #{transfer.custNum}
+        </foreach>
+        <if test="configList != null and configList.size()>0">
+            and (applet_date,user_type) not in
+            <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                (#{item.appletDate},#{item.userType})
+            </foreach>
+        </if>
+        and status=1
+        <if test="limitDate !=null and limitDate !=''">
+            <![CDATA[  and applet_date <=#{limitDate} ]]>
+        </if>
+        group by cust_num,user_type
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.user_type = b.user_type and
+        a.applet_time = b.applet_time where
+        b.status=1
+        <if test="limitDate !=null and limitDate !=''">
+            <![CDATA[  and b.applet_date <=#{limitDate} ]]>
+        </if>
+    </select>
+
+    <sql id="Last_Column_List">
+        b
+        .
+        id
+        , b.api_code,b.cus_batch, b.cust_num, b.id_card, b.name, b.cell, b.user_type, b.reserve_field1,
+        b.reserve_field2, b.create_time,b.update_time, b.applet_date, b.applet_time
+    </sql>
+
+
+    <select id="getSyncUserTimeMaxByCustNums" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select max(create_time) as createTime, cust_num
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        and user_type=#{userType}
+        <if test="dateTimeEnd!=null and dateTimeEnd.trim() neq ''">
+            <![CDATA[ and create_time < #{dateTimeEnd} ]]>
+        </if>
+        and status=1 group by cust_num order by createTime
+    </select>
+
+    <select id="getFreeUserTypeAndDateAllFieldList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select t2.* from (select id <include refid="find_free_usertype_and_date_sql"></include>) t1
+        ,b_marketing_sync_3710012 t2 where t1.id=t2.id;
+    </select>
+
+    <select id="getFreeUserTypeAndDateList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select applet_date,user_type,cust_num,create_time,cell,id
+        <include refid="find_free_usertype_and_date_sql"></include>
+    </select>
+
+    <sql id="find_free_usertype_and_date_sql">
+        from b_marketing_sync_${apiCode}
+        where
+        <choose>
+            <when test="freeUserTypeAndDateMap !=null and freeUserTypeAndDateMap.size() != 0">
+                <foreach collection="freeUserTypeAndDateMap" item="dateSet" index="key" open="(" close=")"
+                         separator=" or ">
+                    <if test="key != null and key != '' and dateSet != null and dateSet.size() != 0">
+                        <foreach collection="dateSet" item="date" open="(" close=")">
+                            <if test="date != '' and date != null">
+                                user_type=#{key} and <![CDATA[ applet_date=#{date} ]]>
+                            </if>
+                        </foreach>
+                    </if>
+                </foreach>
+            </when>
+            <otherwise>
+                1!=1
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="custNumSet != null and custNumSet.size() != 0">
+                and cust_num in
+                <foreach collection="custNumSet" item="custNum" open="(" separator="," close=")">
+                    #{custNum}
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1
+        group by applet_date,user_type,cust_num order by applet_date desc,max(create_time) desc
+    </sql>
+
+    <select id="getCellByCustNumsAndMaxCreateTime" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select t1.cell, t1.cust_num
+        from b_marketing_sync_${apiCode} t1,
+        (select max(create_time) createtime, cust_num
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="set" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        and status = 1 group by cust_num
+        ) as t2 where t1.create_time = t2.createtime and t1.cust_num = t2.cust_num group by t1.cust_num
+    </select>
+
+    <select id="getCellByCellAndMaxAppletTime" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select t1.cell,t1.user_type,cust_num,applet_date,applet_time,create_time,cus_batch
+        from b_marketing_sync_${apiCode} t1,
+        (select cell,max(applet_time) as appletTime
+        from b_marketing_sync_${apiCode}
+        where
+        cell in
+        <foreach collection="cellSet" item="cell" open="(" separator="," close=")">
+            '${cell}'
+        </foreach>
+        and status = 1 group by cell
+        ) as t2 where t1.applet_time = t2.appletTime and t1.cell = t2.cell group by t1.cell
+    </select>
+
+    <select id="getSyncUserByAppletDateRange" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            <![CDATA[ AND applet_date >= #{startDate} and applet_date < #{endDate} ]]>
+            AND status=1
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getSyncUserByAppletDateAndUserType" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            AND applet_date = #{executeDate}
+            And user_type = #{userType}
+            AND status=1
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getCustNumByAppletDateAndUserTypetikv_" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select sync.id as id,
+               sync.cust_num as custNum,
+               sync.cell as cell,
+               reserve_field1
+        from b_marketing_sync_${apiCode} sync
+        left join b_third_partner_data_pass_back_log passLog on sync.id = passLog.sync_user_id
+            AND passLog.task_id = #{taskId}
+            AND passLog.status in (0,1)
+        <where>
+            sync.api_code = #{apiCode}
+            AND sync.applet_date = #{appletDate}
+            AND sync.user_type = #{userType}
+            AND sync.status = 1
+            AND sync.is_repeat in (1,2)
+            AND passLog.id is null
+            limit #{pageSize}
+        </where>
+    </select>
+
+
+    <select id="getAppletDateByUserType" resultType="java.lang.String">
+        select applet_date from b_marketing_sync_${apiCode}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <![CDATA[ AND applet_date >= #{startDate} and applet_date < #{endDate} ]]>
+            AND status=1
+            And user_type = #{userType}
+            group by applet_date
+            order by applet_date asc
+        </where>
+    </select>
+
+    <select id="getAppletTimeBySyncUser" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select applet_time, create_time
+        from b_marketing_sync_${syncUser.apiCode}
+        <where>
+            <if test="syncUser.custNum != null and syncUser.custNum != ''">
+                cust_num = #{syncUser.custNum}
+            </if>
+            <if test="syncUser.userType != null and syncUser.userType != ''">
+                and user_type = #{syncUser.userType}
+            </if>
+        </where>
+        order by applet_time desc, create_time desc limit 0,1
+    </select>
+    <select id="selectInAppletDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${marketingTransferSyncUser.apiCode}
+        <where>
+            cust_num = #{marketingTransferSyncUser.custNum} and status =1 and is_repeat in (1,2)
+            and (applet_date,user_type) in
+            <foreach collection="collectRequestDate" item="item" open="(" close=")" separator=",">
+                (#{item.appletDate},#{item.userType})
+            </foreach>
+            order by applet_time desc limit 1
+        </where>
+    </select>
+    <select id="selectNotInAppletDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${marketingTransferSyncUser.apiCode}
+        <where>
+            cust_num = #{marketingTransferSyncUser.custNum} and status =1
+            <if test="collectRequestDate!=null and  collectRequestDate.size()>0">
+                and (applet_date,user_type) not in
+                <foreach collection="collectRequestDate" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate},#{item.userType})
+                </foreach>
+            </if>
+            order by applet_time desc limit 1
+        </where>
+    </select>
+
+    <select id="getNewSyncUserByDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+        and status = 1
+        and is_repeat in (1,2)
+        and user_type = #{userType}
+        <if test="minId !=null and minId >0">
+            and id > #{minId}
+        </if>
+        order by id asc
+        limit #{pageSize}
+    </select>
+
+    <select id="countByAppletDate" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+          and status = 1
+          and is_repeat in (1, 2)
+    </select>
+
+    <select id="getNewSyncUserByCustNumtikv_" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from
+        (
+        select *,row_number() over(partition by cust_num order by applet_time desc) as num
+        from b_marketing_sync_${apiCode}
+        where status = 1 and is_repeat in (1,2)
+        <![CDATA[ and applet_date >=#{dateBegin}  and applet_date <= #{dateEnd} ]]>
+        and cust_num in
+        <foreach collection="custNums" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        ) t where t.num =1
+    </select>
+
+    <select id="getMinAppletDate" resultType="java.lang.String">
+        select min(applet_date)
+        from b_marketing_sync_${apiCode}
+        where status = 1
+          and is_repeat in (1, 2);
+    </select>
+
+    <select id="getCellLastByCustNums" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select b.cell,b.cust_num,b.applet_time from
+        (
+        select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode} a
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time
+    </select>
+
+    <select id="getCellByAppletDateAndUserType" resultType="com.br.marketing.entity.MarketingSyncUser">
+
+        select * from b_marketing_sync_${apiCode}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            AND applet_date = #{appletDate}
+            And user_type = #{userType}
+            AND status=1
+            order by id asc limit 2000;
+        </where>
+
+    </select>
+
+    <select id="getSyncUserByAppletDatePage" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+          And user_type = #{userType}
+          AND status = 1
+        order by applet_time desc, id desc limit #{limitStart}, 2000;
+    </select>
+
+    <select id="getSyncUserLastByCellAndInAppletDateUserTypeList"
+            resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cell,user_type,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cell in
+        <foreach collection="cellValidityPeriodBOList" item="bo" open="(" separator="," close=")">
+            '${bo.cell}'
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size()>0">
+                and (applet_date,user_type) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate},#{item.userType})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1 and is_repeat in (1,2)
+        group by cell,user_type
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cell = b.cell and a.user_type = b.user_type and
+        a.applet_time = b.applet_time where
+        b.status=1 and b.is_repeat in (1,2)
+    </select>
+
+    <select id="getSyncUserLastByCellAndInAppletDatList"
+            resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cell,user_type,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cell in
+        <foreach collection="cellSet" item="cell" open="(" separator="," close=")">
+            '${cell}'
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size()>0">
+                and (applet_date,user_type) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate},#{item.userType})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1 and is_repeat in (1,2)
+        group by cell,user_type
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cell = b.cell and a.user_type = b.user_type and
+        a.applet_time = b.applet_time where
+        b.status=1 and b.is_repeat in (1,2)
+    </select>
+
+    <select id="getSyncUserLastByCustNumAndInAppletDatList"
+            resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+        <include refid="Last_Column_List"/>
+        from
+        (select cust_num,user_type,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNumSet" item="custNum" open="(" separator="," close=")">
+            '${custNum}'
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size()>0">
+                and (applet_date,user_type) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate},#{item.userType})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1
+        and is_repeat in (1,2)
+        group by cust_num,user_type
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.user_type = b.user_type and
+        a.applet_time = b.applet_time where
+        b.status=1 and b.is_repeat in (1,2)
+    </select>
+
+    <update id="updateStatus">
+        update b_marketing_sync_${apiCode} set  status = 2,fail_type = concat(ifnull(fail_type,''),',营销失败数据') where cust_num = #{custNum} and applet_date = #{appletDate} and status=1
+    </update>
+    <update id="updateSqlByNoDestikv_">
+        ${updateSql}
+    </update>
+
+    <select id="findCusBatchByAppletDatePage" resultType="java.lang.String">
+        select cus_batch
+        from b_marketing_sync_${apiCode}
+        where api_code = '${apiCode}'
+        and applet_date = '${appletDate}'
+        <if test="cusBatch != null and cusBatch != ''">
+            and cus_batch > '${cusBatch}'
+        </if>
+        and status=1 and is_repeat in(1,2)
+        group by cus_batch
+        order by cus_batch limit #{pageSize}
+    </select>
+
+    <select id="getSyncUserByCustNumAndAppletDateList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNumSet" item="custNum" open="(" separator="," close=")">
+            '${custNum}'
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size() > 0">
+                and (applet_date, user_type) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate}, #{item.userType})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1
+        and is_repeat in (1,2)
+    </select>
+
+    <select id="getSyncUserByCellAndAppletDateList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cell in
+        <foreach collection="cellSet" item="cell" open="(" separator="," close=")">
+            '${cell}'
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size() > 0">
+                and (applet_date, user_type) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.appletDate}, #{item.userType})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+            </otherwise>
+        </choose>
+        and status=1
+        and is_repeat in (1,2)
+    </select>
+
+    <select id="getSyncUserByCustNumAndTaskIdsList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNumSet" item="custNum" open="(" separator="," close=")">
+            '${custNum}'
+        </foreach>
+        <choose>
+            <when test="configList != null and configList.size() > 0">
+                and (cus_batch, user_type, applet_date) in
+                <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                    (#{item.taskId,jdbcType=VARCHAR}, #{item.userType,jdbcType=VARCHAR}, #{item.appletDate,jdbcType=VARCHAR})
+                </foreach>
+            </when>
+            <otherwise>
+                and 1!=1
+
+            </otherwise>
+        </choose>
+        and status=1
+        and is_repeat in (1,2)
+    </select>
+    <select id="getUserLastByCell" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where `cell` = #{cell}
+          and `status` = 1
+        order by applet_time desc limit 1
+    </select>
+
+    <select id="selectSyncUserByRequestBatchList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select id,user_type,status,is_repeat,create_time
+        from b_marketing_sync_${apiCode}
+        where api_code = '${apiCode}'
+        and request_batch = '${requestBatch}'
+        and applet_date = '${appletDate}'
+        <if test="userTypeSet != null">
+            and user_type in
+            <foreach collection="userTypeSet" open="(" close=")" separator="," item="userType">
+                '${userType}'
+            </foreach>
+        </if>
+        order by user_type,create_time;
+    </select>
+
+    <select id="existUploadTable" resultType="java.lang.Integer">
+        select 1
+        from ${tableNm} limit 1
+    </select>
+
+    <select id="noDesUploadByMinIdtikv_" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select `id`,`cell`
+        from b_marketing_sync_${apiCode}
+        where
+            cell_md5 is null and status = 1
+            <if test="minId != null and minId >0">
+             and `id` > #{minId}
+            </if>
+        order by `id` asc limit 2000
+    </select>
+    <select id="noDesUploadByMinIdtiflash_" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_${apiCode}
+        where
+        cell_md5 is null and status = 1
+    </select>
+
+    <select id="selectSyncUserByCelltikv_" resultType="com.br.marketing.entity.MarketingSyncUserCell">
+        select applet_date as appletDate ,api_code as apiCode, user_type as userType,
+            count(*) as normalNum, sum(case when is_repeat=3 then 0 else 1 end) as duplicateRemovalNum
+        from b_marketing_sync_${apiCode}
+        where cell=#{cell}
+          <if test="appletTimeStart != null and appletTimeStart != '' and appletTimeEnd != null and appletTimeEnd != ''">
+              <![CDATA[ and applet_date>=#{appletTimeStart} and applet_date<=#{appletTimeEnd} ]]>
+          </if>
+          and status=1
+          <if test="userTypeList != null and userTypeList.size()>0">
+              and user_type in
+              <foreach collection="userTypeList" item="item" open="(" separator="," close=")">
+                  #{item}
+              </foreach>
+          </if>
+        group by applet_date,api_code,user_type
+        <if test="orderField != null and orderField != '' ">
+            order by ${orderField}
+            <if test="descField != null and descField != '' ">
+                ${descField}
+            </if>
+            <if test="descField == null or descField == '' ">
+                desc
+            </if>
+        </if>
+        <if test="orderField == null or orderField == '' ">
+            order by applet_date desc
+        </if>
+    </select>
+
+    <select id="getSyncUserByRequestBatch" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where api_code =#{apiCode} and request_batch = #{requestBatch}
+    </select>
+
+    <select id="getSyncUserByCondition" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where api_code =#{apiCode}
+            and request_batch = #{requestBatch}
+            and status=1
+            and is_repeat in (1,2)
+    </select>
+
+    <select id="getSyncUserByCusBatch" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+          b.*
+        from b_marketing_sync_${apiCode} as b
+        LEFT JOIN b_qifu_batch_query_user_real_message bq ON
+            b.cell_md5 = bq.mobile_md5 AND b.cust_num = bq.unique_req_no AND bq.create_date = #{createDate}
+        where b.api_code =#{apiCode}
+          AND b.cus_batch =#{cusBatch}
+          AND b.status=1
+          AND b.is_repeat in (1,2)
+          AND bq.mobile_md5 IS NULL
+        <if test="minId !=null and minId >0">
+            and b.id > #{minId}
+        </if>
+        order by b.id asc
+        limit #{pageSize}
+    </select>
+    <select id="getMarketingSyncByCusBatch" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * From  b_marketing_sync_${apiCode}
+        where cus_batch=#{cusBatch} and api_code = #{apiCode} and applet_date = #{appletDate}
+          and user_type =#{userType}
+        and status =1 and is_repeat in (1,2) limit 1
+    </select>
+    <select id="getMarketingSyncByAppletDateAndUserType" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * From b_marketing_sync_${apiCode}
+        where api_code = #{apiCode} and applet_date = #{appletDate}
+          and user_type =#{userType}
+          and status =1 and is_repeat in (1,2) limit 1
+    </select>
+
+    <select id="getCustNumSetByAppletDateInterval" resultType="String">
+        select cust_num
+        From b_marketing_sync_${apiCode}
+        where
+            api_code =#{apiCode}
+            and cust_num in
+            <foreach collection ="custNums" item="item" separator ="," open="(" close=")">
+                #{item}
+            </foreach>
+            and <![CDATA[ applet_date>=#{appletDateStart} and applet_date<=#{appletDateEnd} ]]>
+            and status =1 and is_repeat in (1,2)
+    </select>
+
+    <select id="getReserveFieldByCustNumAndAppletDateList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select id,cust_num,reserve_field1
+        from b_marketing_sync_${apiCode}
+        where api_code = '${apiCode}'
+        and cust_num in
+        <foreach collection="custNumSet" item="custNum" open="(" separator="," close=")">
+            '${custNum}'
+        </foreach>
+        and applet_date in
+        <foreach collection="appletDateSet" open="(" close=")" separator="," item="appletDate">
+            '${appletDate}'
+        </foreach>
+        and status =1 and is_repeat in (1,2)
+    </select>
+
+    <update id="updateReserveFieldByPrimaryKey" parameterType="com.br.marketing.entity.MarketingSyncUser">
+        update b_marketing_sync_${apiCode}
+        set reserve_field1 = #{reserveField1,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="findSyncUserByCustNumsAndAppletTime" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select cell, cust_num, user_type
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+        and status =1
+        order by applet_time desc limit 1
+    </select>
+
+    <select id="getYiXinNewSyncUserByDateAndResourceChannel" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+          and status = 1
+          and is_repeat in (1, 2)
+          and user_type = #{userType}
+          and reserve_field1 -> '$.resourceChannel' = #{resourceChannel}
+        <if test="minId != null and minId > 0">
+            and id > #{minId}
+        </if>
+        order by id asc
+        limit #{pageSize}
+    </select>
+
+    <update id="updateExtend">
+        UPDATE b_marketing_sync_${apiCode}
+        SET reserve_field1 = JSON_SET(reserve_field1,
+        <foreach collection="extendList" item="extendMap" separator=",">
+            '$.${extendMap.key}', '${extendMap.value}'
+        </foreach>
+        )
+        where id = #{id}
+    </update>
+
+    <select id="selectByDynamicCondition" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where status = 1
+        <if test="sha256Cells != null">
+            and cell_sha256 in
+            <foreach collection="sha256Cells" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        and is_repeat in (1, 2)
+        and (${whereStr})
+    </select>
+
+    <select id="getSyncUserLastByCustNumsAndCusBatch" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select b.cust_num, b.reserve_field1 from
+        (select cust_num,max(applet_time) as applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            '${custNum}'
+        </foreach>
+        and cus_batch='${cusBatch}' and json_valid(reserve_field1)=1
+        and reserve_field1->>'$.planId'='${planId}'
+        and status=1 and is_repeat in (1, 2)
+        group by cust_num
+        ) as a
+        left join b_marketing_sync_${apiCode} b on a.cust_num = b.cust_num and a.applet_time = b.applet_time
+        where
+        b.status=1 and b.is_repeat in (1, 2) and b.cus_batch='${cusBatch}'
+        and json_valid(b.reserve_field1)=1
+        and b.reserve_field1->>'$.planId'='${planId}'
+    </select>
+
+    <update id="cleanUpdateById">
+        update b_marketing_sync_${apiCode}
+        <set>
+        <foreach collection="fieldItemList" item="fieldItem" separator=",">
+            <if test="fieldItem.cust_num != null"> cust_num = #{fieldItem.cust_num}</if>
+            <if test="fieldItem.id_card != null"> id_card = #{fieldItem.id_card}</if>
+            <if test="fieldItem.name != null"> name = #{fieldItem.name}</if>
+            <if test="fieldItem.cell != null"> cell = #{fieldItem.cell}</if>
+            <if test="fieldItem.cell_md5 != null"> cell_md5 = #{fieldItem.cell_md5}</if>
+            <if test="fieldItem.cell_sha256 != null"> cell_sha256 = #{fieldItem.cell_sha256}</if>
+            <if test="fieldItem.group_type != null"> group_type = #{fieldItem.group_type}</if>
+            <if test="fieldItem.user_type != null"> user_type = #{fieldItem.user_type}</if>
+            <if test="fieldItem.operate_type != null"> operate_type = #{fieldItem.operate_type}</if>
+            <if test="fieldItem.register_date != null"> register_date = #{fieldItem.register_date}</if>
+            <if test="fieldItem.reserve_field1 != null"> reserve_field1 = #{fieldItem.reserve_field1}</if>
+            <if test="fieldItem.reserve_field2 != null"> reserve_field2 = #{fieldItem.reserve_field2}</if>
+            <if test="fieldItem.applet_date != null"> applet_date = #{fieldItem.applet_date}</if>
+            <if test="fieldItem.fail_type != null"> fail_type = #{fieldItem.fail_type}</if>
+        </foreach>
+        </set>
+        where id = #{id, jdbcType=BIGINT}
+    </update>
+    <update id="updateBatchData">
+        ${updateSql}
+    </update>
+
+    <select id="getCellLatestByCustNum" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select cell,cust_num
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+        and status=1
+        and is_repeat in (1,2)
+        order by applet_time desc
+        limit 1
+    </select>
+
+    <select id="getSyncUserByCells" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cell in
+        <foreach collection="cellset" item="cell" open="(" separator="," close=")">
+            '${cell}'
+        </foreach>
+        and applet_date = #{appletDate} and user_type = #{userType} and status=1
+        and is_repeat in (1,2)
+
+    </select>
+
+    <select id="getUserByCell" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where applet_date in
+        <foreach collection="appletDates" item="appletDate" open="(" separator="," close=")">
+            '${appletDate}'
+        </foreach>
+        and cell = #{cell}
+        and status=1
+        and is_repeat in (1,2)
+    </select>
+
+
+    <select id="getCustNumsByCusBatchtikv_" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select id, cust_num
+        from b_marketing_sync_${apiCode}
+        where cus_batch = #{cusBatch}
+        and status = 1
+        and is_repeat in (1,2)
+        <if test="minId != null and minId>0">
+            and id > #{minId}
+        </if>
+        order by id limit #{pageSize}
+    </select>
+
+    <select id="getCellByApiCodeAndMaxId" resultType="com.br.marketing.entity.MarketingSyncCell">
+        select id, cell,cell_md5, cell_sha256 from b_marketing_sync_${apiCode}
+        where
+        status = 1
+        and is_repeat in (1,2)
+        and id > #{maxId} order by id limit #{pageSize}
+    </select>
+
+    <select id="getUserByCustNumAndAppletData" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select id,api_code,user_type,applet_date,status,is_repeat,create_time,update_time
+        from b_marketing_sync_${apiCode}
+        <where>
+            <if test="list != null and list.size()>0">
+                <foreach collection="list" item="item" open="(" separator="or" close=")">
+                    (applet_date = #{item.appletDate} and user_type = #{item.userType})
+                </foreach>
+            </if>
+            <if test="custNums != null and custNums.size() > 0">
+                and cust_num in
+                <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+                    '${custNum}'
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增：支持 filterCondition 的单条件查询 -->
+    <select id="countByCondition" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+        <if test="repushTime != null and repushTime.trim() neq ''">
+            <![CDATA[ and create_time <= #{repushTime} ]]>
+        </if>
+        and user_type = #{userType}
+        and status = 1
+        and is_repeat in (1, 2)
+        <if test="filterCondition != null and filterCondition.trim() neq ''">
+            and ${filterCondition}
+        </if>
+    </select>
+
+    <select id="getSyncUserByMD5" resultType="com.br.marketing.entity.MarketingSyncUser">
+        SELECT * FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY cell_md5 ORDER BY create_time DESC) AS rn
+        FROM b_marketing_sync_${apiCode}
+        WHERE cell_md5 IN
+        <foreach collection="cellMD5" item="md5" open="(" separator="," close=")">
+            #{md5}
+        </foreach>
+        ) t
+        WHERE t.rn = 1
+    </select>
+
+    <select id="countValidSyncForScoreBatchExpire" resultType="java.lang.Long">
+        select count(*)
+        from b_marketing_sync_${apiCode}
+        where status = 1
+          and is_repeat in (1, 2)
+    </select>
+
+</mapper>

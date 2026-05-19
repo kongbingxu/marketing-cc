@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.MarketingSyncReportMapper" >
+  <resultMap id="BaseResultMap" type="com.br.marketing.entity.MarketingSyncReport">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="cid" jdbcType="VARCHAR" property="cid" />
+    <result column="api_code" jdbcType="VARCHAR" property="apiCode" />
+    <result column="short_name" jdbcType="VARCHAR" property="shortName" />
+    <result column="applet_date" jdbcType="VARCHAR" property="appletDate" />
+    <result column="user_type" jdbcType="VARCHAR" property="userType" />
+    <result column="normal_num" jdbcType="INTEGER" property="normalNum" />
+    <result column="duplicate_removal_num" jdbcType="INTEGER" property="duplicateRemovalNum" />
+    <result column="applet_begin_time" jdbcType="TIMESTAMP" property="appletBeginTime" />
+    <result column="applet_end_time" jdbcType="TIMESTAMP" property="appletEndTime" />
+    <result column="reserve_field1_key" jdbcType="VARCHAR" property="reserveField1Key" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+
+  <select id="uploadSyncCounttiflash_" resultType="java.lang.Integer">
+    select count(1) from b_marketing_sync_${apiCode}
+    where
+    applet_date = #{uploadDate,jdbcType=VARCHAR} and
+    (user_type = #{userType,jdbcType=VARCHAR} or group_type = #{userType,jdbcType=VARCHAR})
+    <if test='status == "1"'>
+      and status = #{status,jdbcType=INTEGER}
+      and is_repeat in(1,2)
+    </if>
+  </select>
+
+  <select id="uploadSyncCount" resultType="com.br.marketing.dto.SyncUserTypeNumDTO">
+    select user_type,count(*)
+    from b_marketing_sync_${apiCode}
+    where
+      applet_date = #{appletDate}
+      and status = 1
+      and is_repeat in(1,2)
+      group by user_type
+  </select>
+
+  <select id="getAppletDate" resultType="java.lang.String">
+    select applet_date
+    from b_marketing_sync_${apiCode}
+    where user_type = #{userType}
+    and  <![CDATA[ create_time >= #{startDate} and create_time < #{endDate} and applet_date >= #{appletDateStart}]]>
+    group by applet_date order by applet_date asc
+  </select>
+
+  <select id="uploadSyncMinAppletTimetiflash_" resultType="java.lang.String">
+    select DATE_FORMAT(min(create_time),"%Y-%m-%d %H:%i:%s") from b_marketing_sync_${apiCode}
+    where
+    applet_date = #{uploadDate,jdbcType=VARCHAR} and
+    (user_type = #{userType,jdbcType=VARCHAR} or group_type = #{userType,jdbcType=VARCHAR})
+  </select>
+
+  <select id="uploadSyncMaxAppletTimetiflash_" resultType="java.lang.String">
+    select DATE_FORMAT(max(create_time),"%Y-%m-%d %H:%i:%s") from b_marketing_sync_${apiCode}
+    where
+    applet_date = #{uploadDate,jdbcType=VARCHAR} and
+    (user_type = #{userType,jdbcType=VARCHAR} or group_type = #{userType,jdbcType=VARCHAR})
+  </select>
+
+  <update id="modifyReportById" parameterType="com.br.marketing.entity.MarketingSyncReport" >
+    update b_marketing_sync_report
+    set normal_num = #{normalNum,jdbcType=INTEGER},
+      duplicate_removal_num = #{duplicateRemovalNum,jdbcType=INTEGER},
+      applet_end_time = #{appletEndTime,jdbcType=TIMESTAMP},
+      reserve_field1_key =#{reserveField1Key,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectList" resultType="com.br.marketing.vo.MarketingSyncReportVO">
+    select id, cid
+    , api_code
+    , short_name as shortName
+    , applet_date as appletDate
+    , user_type as userType
+    , normal_num as normalNum
+    , duplicate_removal_num as duplicateRemovalNum
+    , DATE_FORMAT(bmsr.applet_begin_time,'%Y-%m-%d %H:%i:%s') as appletBeginTime
+    , DATE_FORMAT(bmsr.applet_end_time,'%Y-%m-%d %H:%i:%s') as appletEndTime
+    , remark
+    , DATE_FORMAT(bmsr.create_time,'%Y-%m-%d %H:%i:%s') as createTime
+    , DATE_FORMAT(bmsr.update_time,'%Y-%m-%d %H:%i:%s') as updateTime
+    , label_message as labelMessage
+    from b_marketing_sync_report bmsr
+    <where>
+      <if test="appletTimeStart !=null and appletTimeStart!=''">
+        <![CDATA[  and bmsr.applet_date >=#{appletTimeStart} ]]>
+      </if>
+      <if test="appletTimeEnd !=null and appletTimeEnd!=''">
+        <![CDATA[  and bmsr.applet_date <#{appletTimeEnd} ]]>
+      </if>
+      <if test="apiCodeList != null and apiCodeList.size()>0">
+        and bmsr.api_code in
+        <foreach collection="apiCodeList" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="userTypeList != null and userTypeList.size()>0">
+        and bmsr.user_type in
+        <foreach collection="userTypeList" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="cidOrName != null and cidOrName.trim() neq ''">
+        and (bmsr.cid like concat("%", #{cidOrName},"%")
+        or bmsr.short_name like concat("%", #{cidOrName},"%"))
+      </if>
+    </where>
+    order by bmsr.applet_date desc,bmsr.create_time desc,bmsr.id desc
+  </select>
+
+
+  <select id="selectExportDataList" resultType="com.br.marketing.vo.MarketingSyncReportVO">
+    select
+      bmsr.id
+    , bmsr.cid
+    , bmsr.api_code
+    , bmsr.short_name as shortName
+    , bmsr.applet_date as appletDate
+    , bmsr.user_type as userType
+    , bmsr.normal_num as normalNum
+    , bmsr.duplicate_removal_num as duplicateRemovalNum
+    , DATE_FORMAT(bmsr.applet_begin_time,'%Y-%m-%d %H:%i:%s') as appletBeginTime
+    , DATE_FORMAT(bmsr.applet_end_time,'%Y-%m-%d %H:%i:%s') as appletEndTime
+    , bmsr.remark
+    , DATE_FORMAT(bmsr.create_time,'%Y-%m-%d %H:%i:%s') as createTime
+    , DATE_FORMAT(bmsr.update_time,'%Y-%m-%d %H:%i:%s') as updateTime
+    , bmsr.label_message as labelMessage
+    , COALESCE(bmvd.valid_start_date, '') as validStartDate
+    , COALESCE(bmvd.valid_end_date, '') as validEndDate
+    from b_marketing_sync_report bmsr
+      LEFT JOIN b_marketing_data_valid_config bmvd
+      ON bmsr.api_code = bmvd.api_code
+      AND bmsr.user_type = bmvd.user_type
+      AND bmsr.applet_date = bmvd.applet_date
+    <where>
+      <if test="appletTimeStart !=null and appletTimeStart!=''">
+        <![CDATA[  and bmsr.applet_date >=#{appletTimeStart} ]]>
+      </if>
+      <if test="appletTimeEnd !=null and appletTimeEnd!=''">
+        <![CDATA[  and bmsr.applet_date <#{appletTimeEnd} ]]>
+      </if>
+      <if test="apiCodeList != null and apiCodeList.size()>0">
+        and bmsr.api_code in
+        <foreach collection="apiCodeList" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="userTypeList != null and userTypeList.size()>0">
+        and bmsr.user_type in
+        <foreach collection="userTypeList" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="cidOrName != null and cidOrName.trim() neq ''">
+        and (bmsr.cid like concat("%", #{cidOrName},"%")
+        or bmsr.short_name like concat("%", #{cidOrName},"%"))
+      </if>
+    </where>
+    order by bmsr.applet_date desc,bmsr.create_time desc,bmsr.id desc
+  </select>
+
+  <select id="getReportListTotaltiflash_" resultType="com.br.marketing.vo.MarketingSyncReportNumVO">
+    select SUM(normal_num) as normalNumTotal,SUM(duplicate_removal_num) as duplicateRemovalNumTotal,
+           api_code
+    from b_marketing_sync_report bmsr
+    <where>
+      <if test="appletTimeStart !=null and appletTimeStart!=''">
+        <![CDATA[  and bmsr.applet_date >=#{appletTimeStart} ]]>
+      </if>
+      <if test="appletTimeEnd !=null and appletTimeEnd!=''">
+        <![CDATA[  and bmsr.applet_date <#{appletTimeEnd} ]]>
+      </if>
+      <if test="apiCodeList != null and apiCodeList.size()>0">
+        and bmsr.api_code in
+        <foreach collection="apiCodeList" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="userTypeList != null and userTypeList.size()>0">
+        and bmsr.user_type in
+        <foreach collection="userTypeList" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="cidOrName != null and cidOrName.trim() neq ''">
+        and (bmsr.cid like concat("%", #{cidOrName},"%")
+        or bmsr.short_name like concat("%", #{cidOrName},"%"))
+      </if>
+    </where>
+    group by api_code
+  </select>
+
+  <delete id="deleteByAppletDate">
+    delete from b_marketing_sync_report
+    where api_code = #{apiCode} and applet_date = #{appletDate};
+  </delete>
+
+  <select id="selectById" resultType="com.br.marketing.vo.MarketingSyncReportVO"
+          parameterType="java.lang.Long">
+    select *
+    from b_marketing_sync_report
+    where id = #{id}
+  </select>
+
+  <select id="selectValidData" resultType="com.br.marketing.entity.MarketingDataValidConfig">
+    select *
+    from b_marketing_data_valid_config
+    where api_code = #{apiCode}
+    and user_type = #{userType}
+    and applet_date =#{appletDate}
+  </select>
+
+  <update id="updateById" parameterType="com.br.marketing.entity.MarketingDataValidConfig">
+    update b_marketing_data_valid_config
+    <set>
+      <if test="config.apiCode != null">
+        api_code = #{config.apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="config.appletDate != null">
+        applet_date = #{config.appletDate,jdbcType=VARCHAR},
+      </if>
+      <if test="config.userType != null">
+        user_type = #{config.userType,jdbcType=VARCHAR},
+      </if>
+      <if test="config.validStartDate != null">
+        valid_start_date = #{config.validStartDate,jdbcType=VARCHAR},
+      </if>
+      <if test="config.validEndDate != null">
+        valid_end_date = #{config.validEndDate,jdbcType=VARCHAR},
+      </if>
+      <if test="config.validDays != null">
+        valid_days = #{config.validDays,jdbcType=VARCHAR},
+      </if>
+      <if test="config.validType != null">
+        valid_type = #{config.validType,jdbcType=INTEGER},
+      </if>
+      <if test="config.createTime != null">
+        create_time = #{config.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="config.updateTime != null">
+        update_time = #{config.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="config.isDel != null">
+        is_del = #{config.isDel,jdbcType=INTEGER}
+      </if>
+    </set>
+    where id = #{config.id,jdbcType=BIGINT}
+  </update>
+
+  <sql id="Base_Column_List_1">
+    id
+    , normal_num, duplicate_removal_num, applet_begin_time, applet_end_time
+  </sql>
+
+  <select id="selectNumberByExample" resultMap="BaseResultMap"
+          parameterType="com.br.marketing.entity.MarketingSyncReportExample">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List_1"/>
+    from b_marketing_sync_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause"/>
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+
+  <select id="selectUploadExtendKeystikv_" resultType="java.lang.String">
+
+    select distinct(json_keys(reserve_field1))
+    from b_marketing_sync_${apiCode}
+    where user_type = #{userType}
+      and applet_date = #{appletDate}
+
+  </select>
+
+  <select id="selectGroupCounttikv_" resultType="java.util.Map">
+    ${sql}
+  </select>
+
+
+  <select id="selectGroupData" resultType="com.br.marketing.entity.MarketingSyncUser">
+
+    select id,api_code,reserve_field1 from b_marketing_sync_${apiCode}
+    <where>
+      <if test="userType !=null and userType!=''">
+        user_type = #{userType}
+      </if>
+      <if test="extend !=null and extend!=''">
+        and ${extend}
+      </if>
+      <if test="list != null and list.size()>0">
+        <if test="list.size()==1">
+          and applet_date = #{list[0]}
+        </if>
+        <if test="list.size()>1">
+          and applet_date in
+          <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+      </if>
+      and status =1 and is_repeat in (1, 2)
+      <if test="indexId != null and indexId!=''">
+        and id > #{indexId}
+      </if>
+      order by id asc limit #{pageSize};
+    </where>
+
+
+  </select>
+
+  <update id="updateBatchGroupData">
+    ${updateSql}
+
+  </update>
+
+
+  <select id="selectGroupUploadNumtikv_" resultType="java.util.Map">
+
+    select count(1) as num,${field} as field
+    from b_marketing_sync_${apiCode}
+    <where>
+      <if test="list != null and list.size()>0">
+        <foreach collection="list" item="item" open="(" separator="or" close=")">
+          (applet_date = #{item.appletDate} and user_type = #{item.userType})
+        </foreach>
+      </if>
+      and json_valid(reserve_field1)=1 and status =1 and is_repeat in (1, 2)
+      <if test="extendField != null and extendField!=''">
+        and ${extendField} is not null
+      </if>
+      group by ${field};
+    </where>
+  </select>
+
+  <select id="selectGroupDataByReport" resultType="com.br.marketing.entity.MarketingSyncUser">
+
+    select id,api_code,reserve_field1 from b_marketing_sync_${apiCode}
+    <where>
+      <if test="list != null and list.size()>0">
+        <foreach collection="list" item="item" open="(" separator="or" close=")">
+          (applet_date = #{item.appletDate} and user_type = #{item.userType})
+        </foreach>
+      </if>
+      <if test="extend !=null and extend!=''">
+        and ${extend}
+      </if>
+      and status =1 and is_repeat in (1, 2)
+      <if test="indexId != null and indexId!=''">
+        and id > #{indexId}
+      </if>
+      order by id asc limit #{pageSize};
+    </where>
+
+
+  </select>
+
+  <select id="selectGroupMaxMinId" resultType="java.util.Map">
+    select max(id)as maxId,min(id) as minId from (
+    select id from b_marketing_sync_${apiCode}
+    <where>
+        ${sqlCondition}
+      <if test="indexId != null and indexId!=''">
+        and id > #{indexId}
+      </if>
+      order by id asc limit #{groupNum} ) a
+    </where>
+  </select>
+
+  <select id="selectUploadMagnStatInfotiflash_" resultType="java.util.Map">
+    select count(1) as normalNum,
+           count(case when (status = 1 and is_repeat in (1,2)) then 1 else null end) as duplicateRemovalNum,
+           DATE_FORMAT(min(create_time),"%Y-%m-%d %H:%i:%s") as appletBeginTime,
+           DATE_FORMAT(max(create_time),"%Y-%m-%d %H:%i:%s") as appletEndTime
+    from
+        b_marketing_sync_${apiCode}
+    where
+        applet_date = #{appletDate,jdbcType=VARCHAR}
+        and (user_type = #{userType,jdbcType=VARCHAR} or group_type = #{userType,jdbcType=VARCHAR})
+  </select>
+
+  <select id="getLastMonthDataDates" resultType="java.lang.String">
+    SELECT
+      applet_date
+    FROM b_marketing_sync_report
+    WHERE api_code = #{apiCode}
+      AND applet_date BETWEEN DATE_SUB(CURDATE(),INTERVAL 1 month) AND CURDATE()
+    GROUP BY applet_date
+    ORDER BY applet_date DESC
+  </select>
+
+  <select id="selectByIdList" resultType="com.br.marketing.vo.MarketingSyncReportVO">
+    select
+      bmsr.id
+      , bmsr.cid
+      , bmsr.api_code
+      , bmsr.short_name as shortName
+      , bmsr.applet_date as appletDate
+      , bmsr.user_type as userType
+      , bmsr.normal_num as normalNum
+      , bmsr.duplicate_removal_num as duplicateRemovalNum
+      , DATE_FORMAT(bmsr.applet_begin_time,'%Y-%m-%d %H:%i:%s') as appletBeginTime
+      , DATE_FORMAT(bmsr.applet_end_time,'%Y-%m-%d %H:%i:%s') as appletEndTime
+      , bmsr.remark
+      , DATE_FORMAT(bmsr.create_time,'%Y-%m-%d %H:%i:%s') as createTime
+      , DATE_FORMAT(bmsr.update_time,'%Y-%m-%d %H:%i:%s') as updateTime
+      , bmsr.label_message as labelMessage
+      , COALESCE(bmvd.valid_start_date, '') as validStartDate
+      , COALESCE(bmvd.valid_end_date, '') as validEndDate
+      from b_marketing_sync_report bmsr
+      LEFT JOIN b_marketing_data_valid_config bmvd
+      ON bmsr.api_code = bmvd.api_code
+      AND bmsr.user_type = bmvd.user_type
+      AND bmsr.applet_date = bmvd.applet_date
+      where bmsr.id  in
+        <foreach collection="idList" item="idItem" open="(" separator="," close=")">
+          #{idItem}
+        </foreach>
+  </select>
+
+  <select id="selectOperateTypeGroup" resultType="com.br.marketing.dto.SyncOperateTypeDTO">
+    select operate_type, applet_date, user_type from b_marketing_sync_${apiCode}
+    <where>
+      <if test="syncReportList != null and syncReportList.size() > 0">
+        and (applet_date, user_type) in
+        <foreach collection="syncReportList" item="item" open="(" close=")" separator=",">
+          (#{item.appletDate}, #{item.userType})
+        </foreach>
+      </if>
+      group by operate_type,applet_date,user_type
+      ORDER BY operate_type, applet_date;
+    </where>
+  </select>
+
+  <select id="selectByIds" resultType="com.br.marketing.entity.MarketingSyncReport">
+    SELECT *
+    FROM b_marketing_sync_report
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+</mapper>

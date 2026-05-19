@@ -1,0 +1,905 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.MarketingCustomerMapper" >
+  <resultMap id="BaseResultMap" type="com.br.marketing.entity.MarketingCustomer" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="cid" property="cid" jdbcType="VARCHAR" />
+    <result column="api_code" property="apiCode" jdbcType="VARCHAR" />
+    <result column="message" property="message" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="thread_num" property="threadNum" jdbcType="INTEGER" />
+    <result column="task_time" property="taskTime" jdbcType="TINYINT" />
+    <result column="finish_date" property="finishDate" jdbcType="TINYINT" />
+    <result column="push_customer" property="pushCustomer" jdbcType="TINYINT" />
+    <result column="check_black_list" property="checkBlackList" jdbcType="TINYINT" />
+    <result column="check_redis_number" property="checkRedisNumber" jdbcType="TINYINT" />
+    <result column="save_log" property="saveLog" jdbcType="TINYINT" />
+    <result column="sort" property="sort" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="extend_config_info" property="extendConfigInfo" jdbcType="VARCHAR" />
+    <result column="expire_day" property="expireDay" jdbcType="VARCHAR" />
+    <result column="push_thread_num" property="pushThreadNum" jdbcType="INTEGER" />
+    <result column="push_type" property="pushType" jdbcType="INTEGER" />
+    <result column="push_url" property="pushUrl" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="short_name" property="shortName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="is_check" property="isCheck" jdbcType="TINYINT" />
+    <result column="is_charging" property="isCharging" jdbcType="TINYINT" />
+    <result column="request_code" property="requestCode" jdbcType="VARCHAR" />
+    <result column="response_code" property="responseCode" jdbcType="VARCHAR" />
+    <result column="account_type" property="accountType" jdbcType="TINYINT" />
+    <result column="account_status" property="accountStatus" jdbcType="TINYINT" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="transport" property="transport" jdbcType="VARCHAR" />
+    <result column="meal_json" property="mealJson" jdbcType="VARCHAR" />
+    <result column="official_time" property="officialTime" jdbcType="TIMESTAMP" />
+    <result column="modify_user" property="modifyUser" jdbcType="VARCHAR" />
+    <result column="encryption_key" property="encryptionKey" jdbcType="VARCHAR" />
+    <result column="decrypt_key" property="decryptKey" jdbcType="VARCHAR" />
+    <result column="sn_ver" property="snVer" jdbcType="VARCHAR" />
+    <result column="call_method" property="callMethod" jdbcType="INTEGER" />
+    <result column="file_encryption_methods" property="fileEncryptionMethods" jdbcType="INTEGER" />
+    <result column="file_encryption_algorithm" property="fileEncryptionAlgorithm" jdbcType="INTEGER" />
+    <result column="file_encryption_key" property="fileEncryptionKey" jdbcType="VARCHAR" />
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="is_output_data_product" property="isOutputDataProduct" jdbcType="TINYINT" />
+    <result column="apply_loan_type" property="applyLoanType" jdbcType="INTEGER" />
+    <result column="api_type" property="apiType" jdbcType="VARCHAR" />
+    <result column="sms_category" property="smsCategory" jdbcType="VARCHAR" />
+    <result column="first_department" property="firstDepartment" jdbcType="VARCHAR" />
+    <result column="second_department" property="secondDepartment" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, cid, api_code, message, `type`, thread_num, task_time, finish_date, push_customer,
+    check_black_list, check_redis_number, save_log, sort, `status`, extend_config_info, expire_day,
+    push_thread_num, push_type, push_url, `name`, short_name, create_time, update_time,
+    is_check, is_charging, request_code, response_code, account_type, account_status,
+    start_time, end_time, transport, meal_json, official_time, modify_user, encryption_key,
+    decrypt_key, sn_ver, call_method, file_encryption_methods, file_encryption_algorithm,
+    file_encryption_key, create_user, is_output_data_product, apply_loan_type, api_type,
+    sms_category, first_department,second_department
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.br.marketing.entity.MarketingCustomerExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from b_marketing_customer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from b_marketing_customer
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from b_marketing_customer
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.br.marketing.entity.MarketingCustomerExample" >
+    delete from b_marketing_customer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.br.marketing.entity.MarketingCustomer" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into b_marketing_customer (cid, api_code, message,
+      `type`, thread_num, task_time,
+      finish_date, push_customer, check_black_list,
+      check_redis_number, save_log, sort,
+      `status`, extend_config_info, expire_day, push_thread_num,
+      push_type, push_url, `name`,
+      short_name, create_time, update_time,
+      is_check, is_charging, request_code,
+      response_code, account_type, account_status,
+      start_time, end_time, transport,
+      meal_json, official_time, modify_user,
+      encryption_key, decrypt_key, sn_ver,
+      call_method, file_encryption_methods, file_encryption_algorithm,
+      file_encryption_key, create_user, is_output_data_product,
+      apply_loan_type, api_type, sms_category, first_department, second_department)
+    values (#{cid,jdbcType=VARCHAR}, #{apiCode,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR},
+      #{type,jdbcType=VARCHAR}, #{threadNum,jdbcType=INTEGER}, #{taskTime,jdbcType=TINYINT},
+      #{finishDate,jdbcType=TINYINT}, #{pushCustomer,jdbcType=TINYINT}, #{checkBlackList,jdbcType=TINYINT},
+      #{checkRedisNumber,jdbcType=TINYINT}, #{saveLog,jdbcType=TINYINT}, #{sort,jdbcType=TINYINT},
+      #{status,jdbcType=TINYINT}, #{extendConfigInfo,jdbcType=VARCHAR}, #{expireDay,jdbcType=VARCHAR}, #{pushThreadNum,jdbcType=INTEGER},
+      #{pushType,jdbcType=INTEGER}, #{pushUrl,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+      #{shortName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+      #{isCheck,jdbcType=TINYINT}, #{isCharging,jdbcType=TINYINT}, #{requestCode,jdbcType=VARCHAR},
+      #{responseCode,jdbcType=VARCHAR}, #{accountType,jdbcType=TINYINT}, #{accountStatus,jdbcType=TINYINT},
+      #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{transport,jdbcType=VARCHAR},
+      #{mealJson,jdbcType=VARCHAR}, #{officialTime,jdbcType=TIMESTAMP}, #{modifyUser,jdbcType=VARCHAR},
+      #{encryptionKey,jdbcType=VARCHAR}, #{decryptKey,jdbcType=VARCHAR}, #{snVer,jdbcType=VARCHAR},
+      #{callMethod,jdbcType=INTEGER}, #{fileEncryptionMethods,jdbcType=INTEGER}, #{fileEncryptionAlgorithm,jdbcType=INTEGER},
+      #{fileEncryptionKey,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{isOutputDataProduct,jdbcType=TINYINT},
+      #{applyLoanType,jdbcType=INTEGER}, #{apiType,jdbcType=VARCHAR}, #{smsCategory,jdbcType=VARCHAR},
+    #{firstDepartment,jdbcType=VARCHAR}, #{secondDepartment,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.br.marketing.entity.MarketingCustomer" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into b_marketing_customer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="apiCode != null" >
+        api_code,
+      </if>
+      <if test="message != null" >
+        message,
+      </if>
+      <if test="type != null" >
+        `type`,
+      </if>
+      <if test="threadNum != null" >
+        thread_num,
+      </if>
+      <if test="taskTime != null" >
+        task_time,
+      </if>
+      <if test="finishDate != null" >
+        finish_date,
+      </if>
+      <if test="pushCustomer != null" >
+        push_customer,
+      </if>
+      <if test="checkBlackList != null" >
+        check_black_list,
+      </if>
+      <if test="checkRedisNumber != null" >
+        check_redis_number,
+      </if>
+      <if test="saveLog != null" >
+        save_log,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="status != null" >
+        `status`,
+      </if>
+      <if test="extendConfigInfo != null" >
+        extend_config_info,
+      </if>
+      <if test="expireDay != null" >
+        expire_day,
+      </if>
+      <if test="pushThreadNum != null" >
+        push_thread_num,
+      </if>
+      <if test="pushType != null" >
+        push_type,
+      </if>
+      <if test="pushUrl != null" >
+        push_url,
+      </if>
+      <if test="name != null" >
+        `name`,
+      </if>
+      <if test="shortName != null" >
+        short_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="isCheck != null" >
+        is_check,
+      </if>
+      <if test="isCharging != null" >
+        is_charging,
+      </if>
+      <if test="requestCode != null" >
+        request_code,
+      </if>
+      <if test="responseCode != null" >
+        response_code,
+      </if>
+      <if test="accountType != null" >
+        account_type,
+      </if>
+      <if test="accountStatus != null" >
+        account_status,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="transport != null" >
+        transport,
+      </if>
+      <if test="mealJson != null" >
+        meal_json,
+      </if>
+      <if test="officialTime != null" >
+        official_time,
+      </if>
+      <if test="modifyUser != null" >
+        modify_user,
+      </if>
+      <if test="encryptionKey != null" >
+        encryption_key,
+      </if>
+      <if test="decryptKey != null" >
+        decrypt_key,
+      </if>
+      <if test="snVer != null" >
+        sn_ver,
+      </if>
+      <if test="callMethod != null" >
+        call_method,
+      </if>
+      <if test="fileEncryptionMethods != null" >
+        file_encryption_methods,
+      </if>
+      <if test="fileEncryptionAlgorithm != null" >
+        file_encryption_algorithm,
+      </if>
+      <if test="fileEncryptionKey != null" >
+        file_encryption_key,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="isOutputDataProduct != null" >
+        is_output_data_product,
+      </if>
+      <if test="applyLoanType != null" >
+        apply_loan_type,
+      </if>
+      <if test="apiType != null" >
+        api_type,
+      </if>
+      <if test="smsCategory != null" >
+        sms_category,
+      </if>
+      <if test="firstDepartment != null" >
+        first_department,
+      </if>
+      <if test="secondDepartment != null" >
+        second_department,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        #{cid,jdbcType=VARCHAR},
+      </if>
+      <if test="apiCode != null" >
+        #{apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="message != null" >
+        #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="threadNum != null" >
+        #{threadNum,jdbcType=INTEGER},
+      </if>
+      <if test="taskTime != null" >
+        #{taskTime,jdbcType=TINYINT},
+      </if>
+      <if test="finishDate != null" >
+        #{finishDate,jdbcType=TINYINT},
+      </if>
+      <if test="pushCustomer != null" >
+        #{pushCustomer,jdbcType=TINYINT},
+      </if>
+      <if test="checkBlackList != null" >
+        #{checkBlackList,jdbcType=TINYINT},
+      </if>
+      <if test="checkRedisNumber != null" >
+        #{checkRedisNumber,jdbcType=TINYINT},
+      </if>
+      <if test="saveLog != null" >
+        #{saveLog,jdbcType=TINYINT},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="extendConfigInfo != null" >
+        #{extendConfigInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="expireDay != null" >
+        #{expireDay,jdbcType=VARCHAR},
+      </if>
+      <if test="pushThreadNum != null" >
+        #{pushThreadNum,jdbcType=INTEGER},
+      </if>
+      <if test="pushType != null" >
+        #{pushType,jdbcType=INTEGER},
+      </if>
+      <if test="pushUrl != null" >
+        #{pushUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="shortName != null" >
+        #{shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isCheck != null" >
+        #{isCheck,jdbcType=TINYINT},
+      </if>
+      <if test="isCharging != null" >
+        #{isCharging,jdbcType=TINYINT},
+      </if>
+      <if test="requestCode != null" >
+        #{requestCode,jdbcType=VARCHAR},
+      </if>
+      <if test="responseCode != null" >
+        #{responseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="accountType != null" >
+        #{accountType,jdbcType=TINYINT},
+      </if>
+      <if test="accountStatus != null" >
+        #{accountStatus,jdbcType=TINYINT},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="transport != null" >
+        #{transport,jdbcType=VARCHAR},
+      </if>
+      <if test="mealJson != null" >
+        #{mealJson,jdbcType=VARCHAR},
+      </if>
+      <if test="officialTime != null" >
+        #{officialTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyUser != null" >
+        #{modifyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="encryptionKey != null" >
+        #{encryptionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="decryptKey != null" >
+        #{decryptKey,jdbcType=VARCHAR},
+      </if>
+      <if test="snVer != null" >
+        #{snVer,jdbcType=VARCHAR},
+      </if>
+      <if test="callMethod != null" >
+        #{callMethod,jdbcType=INTEGER},
+      </if>
+      <if test="fileEncryptionMethods != null" >
+        #{fileEncryptionMethods,jdbcType=INTEGER},
+      </if>
+      <if test="fileEncryptionAlgorithm != null" >
+        #{fileEncryptionAlgorithm,jdbcType=INTEGER},
+      </if>
+      <if test="fileEncryptionKey != null" >
+        #{fileEncryptionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isOutputDataProduct != null" >
+        #{isOutputDataProduct,jdbcType=TINYINT},
+      </if>
+      <if test="applyLoanType != null" >
+        #{applyLoanType,jdbcType=INTEGER},
+      </if>
+      <if test="apiType != null" >
+        #{apiType,jdbcType=VARCHAR},
+      </if>
+      <if test="smsCategory != null" >
+        #{smsCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="firstDepartment != null" >
+        #{firstDepartment,jdbcType=VARCHAR},
+      </if>
+      <if test="secondDepartment != null" >
+        #{secondDepartment,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.br.marketing.entity.MarketingCustomerExample" resultType="java.lang.Integer" >
+    select count(*) from b_marketing_customer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update b_marketing_customer
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.cid != null" >
+        cid = #{record.cid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.apiCode != null" >
+        api_code = #{record.apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.message != null" >
+        message = #{record.message,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null" >
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.threadNum != null" >
+        thread_num = #{record.threadNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.taskTime != null" >
+        task_time = #{record.taskTime,jdbcType=TINYINT},
+      </if>
+      <if test="record.finishDate != null" >
+        finish_date = #{record.finishDate,jdbcType=TINYINT},
+      </if>
+      <if test="record.pushCustomer != null" >
+        push_customer = #{record.pushCustomer,jdbcType=TINYINT},
+      </if>
+      <if test="record.checkBlackList != null" >
+        check_black_list = #{record.checkBlackList,jdbcType=TINYINT},
+      </if>
+      <if test="record.checkRedisNumber != null" >
+        check_redis_number = #{record.checkRedisNumber,jdbcType=TINYINT},
+      </if>
+      <if test="record.saveLog != null" >
+        save_log = #{record.saveLog,jdbcType=TINYINT},
+      </if>
+      <if test="record.sort != null" >
+        sort = #{record.sort,jdbcType=TINYINT},
+      </if>
+      <if test="record.status != null" >
+        `status` = #{record.status,jdbcType=TINYINT},
+      </if>
+      <if test="record.extendConfigInfo != null" >
+        extend_config_info = #{record.extendConfigInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.expireDay != null" >
+        expire_day = #{record.expireDay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pushThreadNum != null" >
+        push_thread_num = #{record.pushThreadNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.pushType != null" >
+        push_type = #{record.pushType,jdbcType=INTEGER},
+      </if>
+      <if test="record.pushUrl != null" >
+        push_url = #{record.pushUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null" >
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shortName != null" >
+        short_name = #{record.shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isCheck != null" >
+        is_check = #{record.isCheck,jdbcType=TINYINT},
+      </if>
+      <if test="record.isCharging != null" >
+        is_charging = #{record.isCharging,jdbcType=TINYINT},
+      </if>
+      <if test="record.requestCode != null" >
+        request_code = #{record.requestCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.responseCode != null" >
+        response_code = #{record.responseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.accountType != null" >
+        account_type = #{record.accountType,jdbcType=TINYINT},
+      </if>
+      <if test="record.accountStatus != null" >
+        account_status = #{record.accountStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.startTime != null" >
+        start_time = #{record.startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.endTime != null" >
+        end_time = #{record.endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.transport != null" >
+        transport = #{record.transport,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mealJson != null" >
+        meal_json = #{record.mealJson,jdbcType=VARCHAR},
+      </if>
+      <if test="record.officialTime != null" >
+        official_time = #{record.officialTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.modifyUser != null" >
+        modify_user = #{record.modifyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.encryptionKey != null" >
+        encryption_key = #{record.encryptionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.decryptKey != null" >
+        decrypt_key = #{record.decryptKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.snVer != null" >
+        sn_ver = #{record.snVer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.callMethod != null" >
+        call_method = #{record.callMethod,jdbcType=INTEGER},
+      </if>
+      <if test="record.fileEncryptionMethods != null" >
+        file_encryption_methods = #{record.fileEncryptionMethods,jdbcType=INTEGER},
+      </if>
+      <if test="record.fileEncryptionAlgorithm != null" >
+        file_encryption_algorithm = #{record.fileEncryptionAlgorithm,jdbcType=INTEGER},
+      </if>
+      <if test="record.fileEncryptionKey != null" >
+        file_encryption_key = #{record.fileEncryptionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null" >
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isOutputDataProduct != null" >
+        is_output_data_product = #{record.isOutputDataProduct,jdbcType=TINYINT},
+      </if>
+      <if test="record.applyLoanType != null" >
+        apply_loan_type = #{record.applyLoanType,jdbcType=INTEGER},
+      </if>
+      <if test="record.apiType != null" >
+        api_type = #{record.apiType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.smsCategory != null" >
+        sms_category = #{record.smsCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="record.firstDepartment != null" >
+        first_department = #{record.firstDepartment,jdbcType=VARCHAR},
+      </if>
+      <if test="record.secondDepartment != null" >
+        second_department = #{record.secondDepartment,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update b_marketing_customer
+    set id = #{record.id,jdbcType=BIGINT},
+      cid = #{record.cid,jdbcType=VARCHAR},
+      api_code = #{record.apiCode,jdbcType=VARCHAR},
+      message = #{record.message,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      thread_num = #{record.threadNum,jdbcType=INTEGER},
+      task_time = #{record.taskTime,jdbcType=TINYINT},
+      finish_date = #{record.finishDate,jdbcType=TINYINT},
+      push_customer = #{record.pushCustomer,jdbcType=TINYINT},
+      check_black_list = #{record.checkBlackList,jdbcType=TINYINT},
+      check_redis_number = #{record.checkRedisNumber,jdbcType=TINYINT},
+      save_log = #{record.saveLog,jdbcType=TINYINT},
+      sort = #{record.sort,jdbcType=TINYINT},
+      `status` = #{record.status,jdbcType=TINYINT},
+      extend_config_info = #{record.extendConfigInfo,jdbcType=VARCHAR},
+      expire_day = #{record.expireDay,jdbcType=VARCHAR},
+      push_thread_num = #{record.pushThreadNum,jdbcType=INTEGER},
+      push_type = #{record.pushType,jdbcType=INTEGER},
+      push_url = #{record.pushUrl,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      short_name = #{record.shortName,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      is_check = #{record.isCheck,jdbcType=TINYINT},
+      is_charging = #{record.isCharging,jdbcType=TINYINT},
+      request_code = #{record.requestCode,jdbcType=VARCHAR},
+      response_code = #{record.responseCode,jdbcType=VARCHAR},
+      account_type = #{record.accountType,jdbcType=TINYINT},
+      account_status = #{record.accountStatus,jdbcType=TINYINT},
+      start_time = #{record.startTime,jdbcType=TIMESTAMP},
+      end_time = #{record.endTime,jdbcType=TIMESTAMP},
+      transport = #{record.transport,jdbcType=VARCHAR},
+      meal_json = #{record.mealJson,jdbcType=VARCHAR},
+      official_time = #{record.officialTime,jdbcType=TIMESTAMP},
+      modify_user = #{record.modifyUser,jdbcType=VARCHAR},
+      encryption_key = #{record.encryptionKey,jdbcType=VARCHAR},
+      decrypt_key = #{record.decryptKey,jdbcType=VARCHAR},
+      sn_ver = #{record.snVer,jdbcType=VARCHAR},
+      call_method = #{record.callMethod,jdbcType=INTEGER},
+      file_encryption_methods = #{record.fileEncryptionMethods,jdbcType=INTEGER},
+      file_encryption_algorithm = #{record.fileEncryptionAlgorithm,jdbcType=INTEGER},
+      file_encryption_key = #{record.fileEncryptionKey,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      is_output_data_product = #{record.isOutputDataProduct,jdbcType=TINYINT},
+      apply_loan_type = #{record.applyLoanType,jdbcType=INTEGER},
+      api_type = #{record.apiType,jdbcType=VARCHAR},
+      sms_category = #{record.smsCategory,jdbcType=VARCHAR},
+      first_department = #{record.firstDepartment,jdbcType=VARCHAR},
+      second_department = #{record.secondDepartment,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.br.marketing.entity.MarketingCustomer" >
+    update b_marketing_customer
+    <set >
+      <if test="cid != null" >
+        cid = #{cid,jdbcType=VARCHAR},
+      </if>
+      <if test="apiCode != null" >
+        api_code = #{apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="message != null" >
+        message = #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="threadNum != null" >
+        thread_num = #{threadNum,jdbcType=INTEGER},
+      </if>
+      <if test="taskTime != null" >
+        task_time = #{taskTime,jdbcType=TINYINT},
+      </if>
+      <if test="finishDate != null" >
+        finish_date = #{finishDate,jdbcType=TINYINT},
+      </if>
+      <if test="pushCustomer != null" >
+        push_customer = #{pushCustomer,jdbcType=TINYINT},
+      </if>
+      <if test="checkBlackList != null" >
+        check_black_list = #{checkBlackList,jdbcType=TINYINT},
+      </if>
+      <if test="checkRedisNumber != null" >
+        check_redis_number = #{checkRedisNumber,jdbcType=TINYINT},
+      </if>
+      <if test="saveLog != null" >
+        save_log = #{saveLog,jdbcType=TINYINT},
+      </if>
+      <if test="sort != null" >
+        sort = #{sort,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        `status` = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="extendConfigInfo != null" >
+        extend_config_info = #{extendConfigInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="expireDay != null" >
+        expire_day = #{expireDay,jdbcType=VARCHAR},
+      </if>
+      <if test="pushThreadNum != null" >
+        push_thread_num = #{pushThreadNum,jdbcType=INTEGER},
+      </if>
+      <if test="pushType != null" >
+        push_type = #{pushType,jdbcType=INTEGER},
+      </if>
+      <if test="pushUrl != null" >
+        push_url = #{pushUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="shortName != null" >
+        short_name = #{shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isCheck != null" >
+        is_check = #{isCheck,jdbcType=TINYINT},
+      </if>
+      <if test="isCharging != null" >
+        is_charging = #{isCharging,jdbcType=TINYINT},
+      </if>
+      <if test="requestCode != null" >
+        request_code = #{requestCode,jdbcType=VARCHAR},
+      </if>
+      <if test="responseCode != null" >
+        response_code = #{responseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="accountType != null" >
+        account_type = #{accountType,jdbcType=TINYINT},
+      </if>
+      <if test="accountStatus != null" >
+        account_status = #{accountStatus,jdbcType=TINYINT},
+      </if>
+      <if test="startTime != null" >
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="transport != null" >
+        transport = #{transport,jdbcType=VARCHAR},
+      </if>
+      <if test="mealJson != null" >
+        meal_json = #{mealJson,jdbcType=VARCHAR},
+      </if>
+      <if test="officialTime != null" >
+        official_time = #{officialTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyUser != null" >
+        modify_user = #{modifyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="encryptionKey != null" >
+        encryption_key = #{encryptionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="decryptKey != null" >
+        decrypt_key = #{decryptKey,jdbcType=VARCHAR},
+      </if>
+      <if test="snVer != null" >
+        sn_ver = #{snVer,jdbcType=VARCHAR},
+      </if>
+      <if test="callMethod != null" >
+        call_method = #{callMethod,jdbcType=INTEGER},
+      </if>
+      <if test="fileEncryptionMethods != null" >
+        file_encryption_methods = #{fileEncryptionMethods,jdbcType=INTEGER},
+      </if>
+      <if test="fileEncryptionAlgorithm != null" >
+        file_encryption_algorithm = #{fileEncryptionAlgorithm,jdbcType=INTEGER},
+      </if>
+      <if test="fileEncryptionKey != null" >
+        file_encryption_key = #{fileEncryptionKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isOutputDataProduct != null" >
+        is_output_data_product = #{isOutputDataProduct,jdbcType=TINYINT},
+      </if>
+      <if test="applyLoanType != null" >
+        apply_loan_type = #{applyLoanType,jdbcType=INTEGER},
+      </if>
+      <if test="apiType != null" >
+        api_type = #{apiType,jdbcType=VARCHAR},
+      </if>
+      <if test="smsCategory != null" >
+        sms_category = #{smsCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="firstDepartment != null" >
+        first_department = #{firstDepartment,jdbcType=VARCHAR},
+      </if>
+      <if test="secondDepartment != null" >
+        second_department = #{secondDepartment,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.br.marketing.entity.MarketingCustomer" >
+    update b_marketing_customer
+    set cid = #{cid,jdbcType=VARCHAR},
+      api_code = #{apiCode,jdbcType=VARCHAR},
+      message = #{message,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      thread_num = #{threadNum,jdbcType=INTEGER},
+      task_time = #{taskTime,jdbcType=TINYINT},
+      finish_date = #{finishDate,jdbcType=TINYINT},
+      push_customer = #{pushCustomer,jdbcType=TINYINT},
+      check_black_list = #{checkBlackList,jdbcType=TINYINT},
+      check_redis_number = #{checkRedisNumber,jdbcType=TINYINT},
+      save_log = #{saveLog,jdbcType=TINYINT},
+      sort = #{sort,jdbcType=TINYINT},
+      `status` = #{status,jdbcType=TINYINT},
+      extend_config_info = #{extendConfigInfo,jdbcType=VARCHAR},
+      expire_day = #{expireDay,jdbcType=VARCHAR},
+      push_thread_num = #{pushThreadNum,jdbcType=INTEGER},
+      push_type = #{pushType,jdbcType=INTEGER},
+      push_url = #{pushUrl,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      short_name = #{shortName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      is_check = #{isCheck,jdbcType=TINYINT},
+      is_charging = #{isCharging,jdbcType=TINYINT},
+      request_code = #{requestCode,jdbcType=VARCHAR},
+      response_code = #{responseCode,jdbcType=VARCHAR},
+      account_type = #{accountType,jdbcType=TINYINT},
+      account_status = #{accountStatus,jdbcType=TINYINT},
+      start_time = #{startTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      transport = #{transport,jdbcType=VARCHAR},
+      meal_json = #{mealJson,jdbcType=VARCHAR},
+      official_time = #{officialTime,jdbcType=TIMESTAMP},
+      modify_user = #{modifyUser,jdbcType=VARCHAR},
+      encryption_key = #{encryptionKey,jdbcType=VARCHAR},
+      decrypt_key = #{decryptKey,jdbcType=VARCHAR},
+      sn_ver = #{snVer,jdbcType=VARCHAR},
+      call_method = #{callMethod,jdbcType=INTEGER},
+      file_encryption_methods = #{fileEncryptionMethods,jdbcType=INTEGER},
+      file_encryption_algorithm = #{fileEncryptionAlgorithm,jdbcType=INTEGER},
+      file_encryption_key = #{fileEncryptionKey,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      is_output_data_product = #{isOutputDataProduct,jdbcType=TINYINT},
+      apply_loan_type = #{applyLoanType,jdbcType=INTEGER},
+      api_type = #{apiType,jdbcType=VARCHAR},
+      sms_category = #{smsCategory,jdbcType=VARCHAR},
+      first_department = #{firstDepartment,jdbcType=VARCHAR},
+      second_department = #{secondDepartment,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

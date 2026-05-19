@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.CallRecordMapper" >
+
+    <select id="getLastCallRecordByCustNum"  resultType="com.br.marketing.entity.CallRecord">
+        select b.* from
+        (
+        select case_num,max(create_time) as create_time
+        from b_call_record a
+        where case_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        and cid = #{cid}
+        group by case_num
+        ) as a
+        left join b_call_record b on a.case_num = b.case_num and a.create_time = b.create_time
+    </select>
+
+    <select id="getBlackListSettikv_" resultType="com.br.marketing.entity.CallRecord">
+        select
+           case_num as caseNum
+           ,call_start_time as callStartTime
+        from b_call_record
+        where call_status='12' and
+        <foreach collection="custNumMap.entrySet()" open="(" close=")" separator=" or " index="key" item="val">
+            (case_num = '${key}' and <![CDATA[ call_start_time >= '${val} 00:00:00' ]]>
+            and <![CDATA[ call_start_time <= '${val} 23:59:59' ]]>)
+        </foreach>
+        group by case_num having count(*)>0
+    </select>
+
+    <select id="getCallRecordCounttikv_" resultType="java.lang.Integer">
+        select count(distinct a.case_num)
+        from b_call_record as a
+        left join b_xiecheng_data as b on a.case_num = b.sha256_tel
+        where <![CDATA[ a.create_time >=#{requestData} and a.create_time < #{endData} ]]>
+        and <![CDATA[ b.create_time >=#{requestData} and b.create_time < #{endData} ]]>
+        and b.push_status = 2 and b.status = 1
+        <if test="apiCode != null and apiCode!=''">
+            and b.api_code = #{apiCode}
+            and a.api_code = #{apiCode}
+        </if>
+        <if test="lineName != null and lineName!=''">
+            and (a.line_name not like CONCAT('%',#{lineName},'%') or a.line_name is null)
+        </if>
+    </select>
+
+    <select id="getOutboundCounttikv_" resultType="java.lang.Integer">
+        select count(distinct a.case_num)
+        from b_call_record as a
+        left join b_xiecheng_data as b on a.case_num = b.sha256_tel
+        left join b_marketing_transfer_sync_#{cid} as c on b.sha256_tel = c.cust_num
+        where <![CDATA[ a.create_time >=#{requestData} and a.create_time < #{endData} ]]>
+          and <![CDATA[ b.create_time >=#{requestData} and b.create_time < #{endData} ]]>
+          and b.push_status = 2 and b.status = 1
+          and c.request_data = #{requestData}
+        <if test="convType != null and convType!=''">
+            and c.reserve_field1 -> '$.convType'=#{convType}
+        </if>
+        <if test="lineName != null and lineName!=''">
+            and (a.line_name not like CONCAT('%',#{lineName},'%') or a.line_name is null)
+        </if>
+        <if test="apiCode != null and apiCode!=''">
+            and c.api_code = #{apiCode}
+            and b.api_code = #{apiCode}
+            and a.api_code = #{apiCode}
+        </if>
+    </select>
+
+    <select id="getBlackListSetNewtikv_" resultMap="BaseResultMap">
+        select
+        case_num as caseNum,
+        call_start_time as callStartTime
+        from b_call_record
+        where call_status='12'
+        and case_num in
+        <foreach collection="custNumMap.keySet()" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+        and <![CDATA[ call_start_time >= '${bizDate} 00:00:00' ]]>
+        and <![CDATA[ call_start_time <= '${bizDate} 23:59:59' ]]>
+        group by case_num having count(*)>0
+    </select>
+    <select id="getOneDayBlackListByCreateTime" resultType="java.lang.String">
+        select
+        case_num
+        from b_call_record
+        where call_status='12'
+        and case_num in
+        <foreach collection="custNumSet" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+        and date(create_time) = #{nowDate}
+        group by case_num
+    </select>
+
+    <select id="cleanDataOfMinId" resultType="java.lang.Long">
+        SELECT min(bcr.id)
+        FROM b_call_record bcr
+                 LEFT JOIN b_call_record_log bcrl
+                           ON bcr.id = bcrl.record_id
+        WHERE bcr.api_code = #{apiCode,jdbcType=VARCHAR}
+          and bcr.create_time >= #{date}
+          AND bcrl.record_id IS NULL;
+    </select>
+
+    <select id="cleanDataByMinId" resultType="com.br.marketing.entity.CallRecord">
+        SELECT bcr.*
+        FROM b_call_record bcr
+            LEFT JOIN b_call_record_log bcrl
+                ON bcr.id = bcrl.record_id
+        WHERE bcr.api_code = #{apiCode,jdbcType=VARCHAR}
+          AND bcr.create_time >= #{date}
+        <if test="minId != null and minId > 0">
+            and bcr.id > #{minId,jdbcType=BIGINT}
+        </if>
+          AND bcrl.record_id IS NULL
+        ORDER BY bcr.id
+        LIMIT #{limit,jdbcType=INTEGER}
+    </select>
+
+    <update id="updateSyncStatusByIds">
+        update b_call_record
+        set sync_status=#{syncStatus}
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateSyncStatusById">
+        update b_call_record
+        set sync_status = #{syncStatus}
+        where id = #{id}
+    </update>
+
+    <select id="queryTaskNameByUserKey" resultType="java.lang.String">
+        select task_name from b_call_record
+        where api_code = #{apiCode}
+        and case_num = #{userKey}
+        and create_time between #{startDate} and #{endDate}
+        order by create_time desc
+        limit 1
+    </select>
+
+    <select id="queryTaskNameByUserKeyList" resultType="java.util.HashMap">
+        select b.case_num as caseNum, b.task_name as taskName
+        from (
+            select case_num, max(create_time) as create_time
+            from b_call_record
+            where api_code = #{apiCode}
+            and case_num in
+            <foreach collection="userKeyList" item="userKey" open="(" separator="," close=")">
+                #{userKey}
+            </foreach>
+            and create_time between #{startDate} and #{endDate}
+            group by case_num
+        ) as a
+        left join b_call_record b on a.case_num = b.case_num and a.create_time = b.create_time
+        where b.task_name is not null
+    </select>
+</mapper>

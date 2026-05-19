@@ -1,0 +1,921 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.MarketingTaskMapper">
+
+    <resultMap id="closeResultMap" type="com.br.marketing.entity.ApiCodeTask">
+        <result property="apiCode" column="api_code"/>
+        <collection property="marketingTaskList" ofType="com.br.marketing.entity.MarketingTask">
+            <result property="apiCode" column="api_code"/>
+            <result property="batchNumber" column="batch_number"/>
+            <result property="closeDate" column="close_date"/>
+            <result property="id" column="id"/>
+        </collection>
+    </resultMap>
+    <select id="queryCloseBltSoon" resultMap="closeResultMap" parameterType="java.lang.String">
+        SELECT id,
+               api_code,
+               batch_number,
+               close_date
+        FROM b_marketing_task
+        WHERE STATUS = 1
+          AND monitor_status = 1
+          AND close_date &lt;= #{1}
+          AND close_date > curdate()
+          AND monitor_type in (2, 3, 4)
+    </select>
+    <select id="queryCloseBlt" resultMap="closeResultMap" parameterType="java.lang.String">
+        SELECT id,
+               api_code,
+               batch_number,
+               close_date
+        FROM b_marketing_task
+        WHERE STATUS = 1
+          AND monitor_status = 1
+          AND close_date = #{1}
+          AND monitor_type in (2, 3, 4)
+    </select>
+    <select id="queryYesterdayUploadTask" resultType="com.br.marketing.entity.MarketingTask">
+        select *
+        from b_marketing_task
+        where create_time > date_add(curdate(), interval -1 day)
+          and create_time &lt; curdate()
+    </select>
+    <select id="getByCusBatch" parameterType="com.br.marketing.entity.MarketingTask"
+            resultType="com.br.marketing.entity.MarketingTask">
+        SELECT *
+        FROM b_marketing_task
+        WHERE cus_batch = #{cusBatch}
+          and status = 1
+    </select>
+
+    <select id="getCusBatch" parameterType="java.lang.String" resultType="java.lang.String">
+        select cus_batch
+        from b_marketing_task
+        where api_code = #{apiCode}
+          and status = 1
+        group by cus_batch
+    </select>
+    <select id="getById" parameterType="com.br.marketing.entity.MarketingTask"
+            resultType="com.br.marketing.entity.MarketingTask">
+        SELECT *
+        FROM b_marketing_task
+        WHERE id = #{id}
+    </select>
+
+    <select id="getByBatchNumber" resultType="com.br.marketing.entity.MarketingTask">
+        SELECT *
+        FROM b_marketing_task
+        WHERE batch_number = #{batchNumber}
+    </select>
+
+    <select id="queryCount" resultType="int" parameterType="com.br.marketing.entity.MarketingTask">
+        SELECT
+        count(*)
+        FROM
+        b_marketing_task
+        WHERE
+        `status`=1
+        <if test="apiCode!=null">
+            AND api_code = #{apiCode}
+        </if>
+        <if test="queryBeginDate!=null">
+            AND create_time &gt;= #{queryBeginDate}
+        </if>
+        <if test="queryEndDate!=null">
+            AND create_time &lt;= #{queryEndDate}
+        </if>
+        <if test="monitorStatus!=null">
+            AND
+            monitor_status=#{monitorStatus}
+        </if>
+        <if test="strategyId!=null">
+            AND
+            strategy_id=#{strategyId}
+        </if>
+        <if test="frequency!=null">
+            AND
+            frequency=#{frequency}
+        </if>
+    </select>
+    <select id="queryList" resultType="com.br.marketing.entity.MarketingTask"
+            parameterType="com.br.marketing.entity.MarketingTask">
+        SELECT
+        *
+        FROM
+        b_marketing_task
+        WHERE
+        `status`=1
+        <if test="apiCode!=null">
+            AND api_code = #{apiCode}
+        </if>
+        <if test="queryBeginDate!=null">
+            AND create_time &gt;= #{queryBeginDate}
+        </if>
+        <if test="queryEndDate!=null">
+            AND create_time &lt;= #{queryEndDate}
+        </if>
+        <if test="monitorStatus!=null">
+            AND
+            monitor_status=#{monitorStatus}
+        </if>
+        <if test="strategyId!=null">
+            AND
+            strategy_id=#{strategyId}
+        </if>
+        <if test="frequency!=null">
+            AND
+            frequency=#{frequency}
+        </if>
+        <if test="cusBatch!=null">
+            AND
+            cus_batch=#{cusBatch}
+        </if>
+        order by create_time desc
+        LIMIT #{start},#{limit}
+    </select>
+
+
+    <select id="queryScoreData" parameterType="map" resultType="java.lang.String">
+        select fields
+        from b_loan_scoredata
+        where api_code = #{apiCode}
+          and strategyid = #{strategyId}
+          and status = 1
+    </select>
+
+    <select id="queryBltForCusBatch" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT a.cus_batch
+        FROM b_marketing_task a,
+             stra_his_file b
+        WHERE a.batch_number = b.batch_number
+          AND a.api_code = #{apiCode}
+          AND a.monitor_status = 1
+          AND a.cus_batch &lt;&gt; ''
+          AND b.create_time > curdate()
+          AND b.STATUS IN (0, 2)
+        GROUP BY a.cus_batch;
+    </select>
+    <select id="queryBltByapiCode" parameterType="java.lang.String" resultType="com.br.marketing.entity.MarketingTask">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               increment,
+               is_check,
+               monitor_model,
+               close_date,
+               file_name,
+               cus_batch
+        FROM b_marketing_task
+        WHERE api_code = #{apiCode}
+          AND monitor_status = 1
+    </select>
+    <select id="queryApiCode" resultType="java.lang.String">
+        SELECT api_code
+        FROM b_marketing_task
+        WHERE monitor_status = 1
+          AND `status` = 1
+          AND start_date &lt;= now()
+          AND close_date &gt;= now()
+        group by api_code
+    </select>
+
+
+    <select id="query360BatchNumByapiCode" resultType="com.br.marketing.entity.MarketingTask"
+            parameterType="java.lang.String">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               increment,
+               is_check,
+               monitor_model,
+               close_date
+        FROM b_marketing_task_3005390
+        WHERE api_code = #{apiCode}
+          AND monitor_status = 1
+          AND `status` = 1
+          AND start_date &lt;= now()
+          AND close_date &gt;= now()
+        GROUP BY batch_number
+    </select>
+    <select id="queryBatchNumByapiCode" resultType="com.br.marketing.entity.MarketingTask"
+            parameterType="java.lang.String">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               monitor_type,
+               close_date,
+               cus_batch,
+               file_name,
+               actual_number,
+               is_repair,
+               context_id,
+               cycle_day,
+               task_type,
+               product_info
+        FROM b_marketing_task
+        WHERE api_code = #{apiCode}
+          AND monitor_status = 1
+          AND `status` = 1
+          AND start_date &lt;= now()
+          AND close_date &gt;= now()
+    </select>
+    <select id="queryBatchNum" resultType="com.br.marketing.entity.MarketingTask">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               increment,
+               is_check,
+               monitor_model,
+               close_date
+        FROM b_marketing_task
+        WHERE api_code &lt;&gt; '3004761'
+          AND monitor_status = 1
+          AND `status` = 1
+          AND start_date &lt;= now()
+          AND close_date &gt;= now()
+        GROUP BY batch_number
+    </select>
+    <select id="queryBlt" resultType="com.br.marketing.entity.MarketingTask" parameterType="java.lang.String">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               increment,
+               is_check,
+               monitor_model,
+               close_date,
+               file_name,
+               monitor_status,
+               monitor_type,
+               actual_number,
+               task_number,
+               is_repair,
+               context_id,
+               task_type,
+               product_info,
+               is_online,
+               score_separator
+        FROM b_marketing_task
+        WHERE batch_number = #{batchNumber}
+    </select>
+    <select id="queryTask" resultType="com.br.marketing.entity.MarketingTask">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               increment,
+               is_check,
+               monitor_model,
+               close_date
+        FROM b_marketing_task
+        WHERE monitor_status = 1
+          AND `status` = 1
+    </select>
+    <select id="queryConfig" resultType="com.br.marketing.entity.MarketingTask">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               increment,
+               is_check,
+               monitor_model,
+               close_date,
+               create_time
+        FROM b_marketing_task
+        WHERE monitor_status &gt; 0
+          AND (
+                    is_check = 0
+                OR
+                    is_check is NULL
+            )
+
+    </select>
+    <select id="queryMonitorBatch" resultType="com.br.marketing.entity.MarketingTask">
+        SELECT id,
+               batch_number,
+               api_code,
+               strategy_id,
+               frequency,
+               start_date,
+               monitor_type,
+               close_date,
+               file_name,
+               actual_number
+        FROM b_marketing_task
+        WHERE api_code = #{apiCode}
+          AND `status` = 1
+        GROUP BY batch_number
+    </select>
+
+
+    <insert id="insertTask" parameterType="com.br.marketing.entity.MarketingTask">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO b_marketing_task (
+        `api_code`,
+        `batch_number`,
+        `file_name`,
+        `strategy_id`,
+        `frequency`,
+        `create_time`,
+        `update_time`,
+        `monitor_status`,
+        `status`,
+        `task_number`,
+        `actual_number`,
+        `strategy_name`,
+        `close_date`,
+        `start_date`,
+        `cus_batch`,
+        `monitor_type`,
+        `is_repair`,
+        `context_id`
+        <if test="taskType != null">
+            ,`task_type`
+        </if>
+        <if test="productInfo != null">
+            ,`product_info`
+        </if>
+        <if test="cycleDay != null">
+            ,`cycle_day`
+        </if>
+        )
+        VALUES (
+        #{apiCode},
+        #{batchNumber},
+        #{fileName},
+        #{strategyId},
+        #{frequency},
+        now(),
+        now(),
+        #{monitorStatus},
+        #{status},
+        #{taskNumber},
+        #{actualNumber},
+        #{strategyName},
+        #{closeDate},
+        #{startDate},
+        #{cusBatch},
+        #{monitorType},
+        #{isRepair},
+        #{contextId}
+        <if test="taskType != null">
+            ,#{taskType}
+        </if>
+        <if test="productInfo != null">
+            ,#{productInfo}
+        </if>
+        <if test="cycleDay != null">
+            ,#{cycleDay}
+        </if>
+        );
+    </insert>
+
+    <update id="modifyTask" parameterType="com.br.marketing.entity.MarketingTask">
+        UPDATE b_marketing_task
+        SET status=#{status},
+            task_number=#{taskNumber},
+            actual_number=#{actualNumber},
+            strategy_id =#{strategyId},
+            strategy_name =#{strategyName},
+            frequency =#{frequency},
+            start_date=#{startDate},
+            close_date =#{closeDate},
+            monitor_status=#{monitorStatus},
+            is_repair=#{isRepair}
+        WHERE api_code = #{apiCode}
+          AND batch_number = #{batchNumber}
+    </update>
+    <update id="modifyTaskActualNum" parameterType="com.br.marketing.entity.MarketingTask">
+        UPDATE b_marketing_task
+        SET actual_number=#{actualNumber}
+        WHERE api_code = #{apiCode}
+          AND batch_number = #{batchNumber}
+    </update>
+    <update id="updateIsCheck" parameterType="com.br.marketing.entity.MarketingTask">
+        UPDATE b_marketing_task
+        SET is_check =1
+        WHERE id = #{id}
+    </update>
+    <update id="updateMonitorStatus" parameterType="map">
+        UPDATE b_marketing_task
+        SET monitor_status =#{monitorStatus}
+        WHERE
+        status=1
+        AND
+        id in (
+        <foreach collection="ids.split(',')" item="item" index="index" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+    <update id="updateMonitorStatusForOff" parameterType="map">
+        UPDATE b_marketing_task
+        SET monitor_status =#{monitorStatus}
+        <if test="error_message!=null">
+            ,error_message=#{errorMessage}
+        </if>
+        WHERE
+        id in (
+        <foreach collection="ids.split(',')" item="item" index="index" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+    <update id="deleteTask" parameterType="map">
+        UPDATE b_marketing_task
+        SET status =0
+        WHERE
+        id in (
+        <foreach collection="ids.split(',')" item="item" index="index" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+    <update id="updateTask" parameterType="com.br.marketing.entity.MarketingTask">
+        UPDATE b_marketing_task
+        SET strategy_id   =#{strategyId},
+            strategy_name =#{strategyName},
+            frequency     =#{frequency},
+            start_date=#{startDate},
+            close_date    =#{closeDate},
+            update_time=#{updateTime}
+        WHERE id = #{id}
+    </update>
+    <update id="updateTaskActualNumber" parameterType="com.br.marketing.entity.MarketingTask">
+        UPDATE b_marketing_task
+        SET actual_number=#{actualNumber}
+        WHERE id = #{id}
+    </update>
+    <update id="updateBatchTask" parameterType="com.br.marketing.entity.MarketingTask">
+        UPDATE b_marketing_task
+        SET strategy_id   =#{strategyId},
+            strategy_name =#{strategyName},
+            frequency     =#{frequency},
+            start_date=#{startDate},
+            close_date    =#{closeDate},
+            update_time=#{updateTime}
+        WHERE cus_batch = #{cusBatch}
+          and status = 1
+    </update>
+
+    <select id="queryBatchs" parameterType="com.br.marketing.dto.CustomerBatchNumDTO"
+            resultType="com.br.marketing.vo.ScoreDetailVo">
+      select * from(select shf.api_code,
+        shf.show_title as cusBatchNumber,
+        mt.batch_number as batchNumber,
+        shf.statistic_file_path as statisticFilePath,
+        shf.id as fileId,
+        DATE_FORMAT(shf.create_time,'%Y-%m-%d %H:%i:%s') as scoreBeginTime,
+        GROUP_CONCAT(distinct msp.product_name order by msp.product_name)as productName,
+        shf.actual_num as actualNum,
+        GROUP_CONCAT(distinct mtut.user_type order by mtut.user_type)as userType
+        from stra_his_file as shf
+        left join b_marketing_strategy_product as msp on shf.id = msp.file_id and msp.is_del=1
+        left join b_marketing_task as mt on mt.api_code = shf.api_code and mt.batch_number = shf.batch_number
+        left join b_marketing_task_extend as mte on mt.id = mte.task_id
+        left join b_marketing_task_user_type as mtut on mtut.batch_number = mt.batch_number and mtut.api_code = mt.api_code
+        where mt.api_code = #{apiCode}
+
+        <if test="productVersion !=null and productVersion !=''">
+            and msp.product_version =#{productVersion}
+        </if>
+        <if test="uploadBeginTime !=null and uploadBeginTime !=''">
+            <![CDATA[ and mte.upload_time >= #{uploadBeginTime} ]]>
+            <![CDATA[ and mte.upload_time <= #{uploadEndTime} ]]>
+        </if>
+        <if test="scoreTimeList !=null and scoreTimeList.size()>0">
+            and
+            <foreach collection="scoreTimeList" item="item" open="(" close=")" separator="or">
+                (<![CDATA[ shf.create_time>= #{item.scoreBeginTime} and shf.create_time<= #{item.scoreEndTime} ]]>)
+            </foreach>
+        </if>
+        <if test="userType !=null and userType !=''">
+             and mtut.user_type in(
+            <foreach collection="userType.split(',')" item="item" index="index" separator=",">
+                #{item}
+            </foreach>
+            )
+        </if>
+        and shf.score_status = 2
+        and mt.status != 0
+        group by batchNumber
+        order by shf.create_time desc) vie where api_code = #{apiCode}
+        <if test="productName !=null and productName !=''">
+            <foreach collection="moduleList" item="item" index="index" open="and" separator="and">
+                 find_in_set (#{item},productName)
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="selectCycleTopByApiCode" resultType="com.br.marketing.entity.MarketingTask">
+        select *
+        from b_marketing_task
+        where api_code = #{apiCode}
+          and monitor_type = 4
+        order by create_time asc limit 1
+    </select>
+    <select id="queryBatchsCount" parameterType="com.br.marketing.dto.CustomerBatchNumDTO"
+            resultType="java.lang.Long">
+        select sum(actualNum),api_code from(select shf.api_code,
+        shf.show_title as cusBatchNumber,
+        mt.batch_number as batchNumber,
+        shf.statistic_file_path as statisticFilePath,
+        shf.id as fileId,
+        DATE_FORMAT(shf.create_time,'%Y-%m-%d %H:%i:%s') as scoreBeginTime,
+        GROUP_CONCAT(distinct msp.product_name order by msp.product_name)as productName,
+        shf.actual_num as actualNum,
+        GROUP_CONCAT(distinct mtut.user_type order by mtut.user_type)as userType
+        from stra_his_file as shf
+        left join b_marketing_strategy_product as msp on shf.id = msp.file_id and msp.is_del=1
+        left join b_marketing_task as mt on mt.api_code = shf.api_code and mt.batch_number = shf.batch_number
+        left join b_marketing_task_extend as mte on mt.id = mte.task_id
+        left join b_marketing_task_user_type as mtut on mtut.batch_number = mt.batch_number and mtut.api_code = mt.api_code
+        where mt.api_code = #{apiCode}
+
+        <if test="productVersion !=null and productVersion !=''">
+            and msp.product_version =#{productVersion}
+        </if>
+        <if test="uploadBeginTime !=null and uploadBeginTime !=''">
+            <![CDATA[ and mte.upload_time >= #{uploadBeginTime} ]]>
+            <![CDATA[ and mte.upload_time <= #{uploadEndTime} ]]>
+        </if>
+        <if test="scoreTimeList !=null and scoreTimeList.size()>0">
+            and
+            <foreach collection="scoreTimeList" item="item" open="(" close=")" separator="or">
+                (<![CDATA[ shf.create_time>= #{item.scoreBeginTime} and shf.create_time<= #{item.scoreEndTime} ]]>)
+            </foreach>
+        </if>
+        <if test="userType !=null and userType !=''">
+            and mtut.user_type in(
+            <foreach collection="userType.split(',')" item="item" index="index" separator=",">
+                #{item}
+            </foreach>
+            )
+        </if>
+        and shf.score_status = 2
+        and mt.status != 0
+        group by batchNumber
+        order by shf.id desc) vie where api_code = #{apiCode}
+        <if test="productName !=null and productName !=''">
+            <foreach collection="moduleList" item="item" index="index" open="and" separator="and">
+                find_in_set (#{item},productName)
+            </foreach>
+        </if>
+
+    </select>
+    <select id="getModule" resultType="java.util.Map">
+        select id, product as `code` from b_apicode_score_product where api_code = #{apiCode} and is_del = 1 order by id desc;
+    </select>
+    
+    <select id="getScoreTasks" resultType="com.br.marketing.entity.MarketingTask" >
+        select *
+        from b_marketing_task
+        where <![CDATA[  start_date <= #{date} and close_date >=#{date} ]]>
+          <if test="taskId!=null and taskId>0">
+              and id = #{taskId}
+          </if>
+          <if test="hm !=null and hm!=''">
+              <![CDATA[ and start_time<=#{hm}  ]]>
+          </if>
+        and status = 1
+        order by priority, start_time asc
+    </select>
+    <select id="selectList" resultType="com.br.marketing.vo.MarketingTaskVO">
+        select bmt.id,
+        shf.id                                            as `hisFileId`,
+        bmt.api_code                                      ,
+        bmt.batch_number as `batchNumber`,
+        bsrc.id                                           as `ruleId`,
+        bsrc.rule_name                                    as `ruleName`,
+        bsrc.rule_name_short                              as `ruleNumber`,
+        bmc.cid,
+        bmc.short_name                                    as `cName`,
+        bmt.status,
+        bmt.priority,
+        bmt.task_number                                   as `taskNumber`,
+        bsrc.condition_info                               as `conditionInfo`,
+        shf.zipFile_name                                  as `fileName`,
+        bmte.condition_type                               as `conditionType`,
+        bmte.condition_info_show                          as `conditionInfoShow`,
+        bmte.label_name                                   as `labelName`,
+        bmt.monitor_type                                  as `execType`,
+        shf.create_time                                   as `taskCreateTime`,
+        shf.running_end_time                              as `taskUpdateTime`,
+        bmt.is_online                                     as `isOnline`,
+        case
+        when shf.status is null then 0
+        when shf.status = 2 then 2
+        when shf.status = 0 then 3
+        when shf.status = 1 then 1
+        when shf.status = 3 then 1
+        when shf.status = 4 then 1
+        when shf.status = 5 then 1
+        when shf.status = 6 then 1
+        when shf.status = 7 then 1
+        when shf.status = 9 then 1
+        when shf.status = 10 then 4
+        when shf.status = 11 then 5
+        when shf.status = 12 then 1
+        else shf.status end                                as taskStatus,
+        bmt.start_date                              as startDate,
+        bmt.close_date                              as closeDate,
+        bmt.start_time                              as startTime,
+        bmt.create_time                             as createTime,
+        bmt.update_time                             as updateTime
+
+        from b_marketing_task bmt
+
+        left join stra_his_file shf on shf.batch_number = bmt.batch_number
+
+        left  join b_marketing_task_extend bmte on bmte.task_id = bmt.id
+
+        left join b_score_rule_config bsrc on bsrc.id = bmte.rule_id
+
+        left join  b_marketing_customer bmc  on bmc.api_code = bmt.api_code
+
+        where bsrc.is_del = 1
+            and bmt.status !=0
+            and bmc.status =1
+        <if test="status !=null">
+            and bmt.status = #{status}
+        </if>
+        <if test="search !=null and search!=''">
+            and (bmt.api_code like concat("%", #{search},"%")
+            or bmc.cid like concat("%", #{search},"%")
+            or bmc.short_name like concat("%", #{search},"%"))
+        </if>
+        <if test="createTimeStart !=null and createTimeStart!=''">
+            <![CDATA[  and bmt.create_time >=#{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd !=null and createTimeEnd!=''">
+            <![CDATA[  and bmt.create_time <#{createTimeEnd} ]]>
+        </if>
+        <if test="updateTimeStart !=null and updateTimeStart!=''">
+            <![CDATA[  and bmt.update_time >=#{updateTimeStart} ]]>
+        </if>
+        <if test="updateTimeEnd !=null and updateTimeEnd!=''">
+            <![CDATA[  and bmt.update_time <#{updateTimeEnd} ]]>
+        </if>
+        <if test="taskStatus==0 ">
+            and shf.status is null
+        </if>
+        <if test="taskStatus==2 ">
+            and shf.status = 2
+        </if>
+        <if test="taskStatus==1 ">
+            and shf.status in(1,3,4,5,6,7,9,12)
+        </if>
+        <if test="taskStatus==3 ">
+            and shf.status =0
+        </if>
+        <if test="taskStatus==4 ">
+            and shf.status =10
+        </if>
+        <if test="taskStatus==5 ">
+            and shf.status =11
+        </if>
+        <if test="id !=null">
+            and bmt.id = #{id}
+        </if>
+        <if test="execType !=null">
+            and bmt.monitor_type = #{execType}
+        </if>
+        order by bmt.create_time desc,bmt.id desc
+    </select>
+
+    <select id="selectByPriority" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_task
+        where status = 1
+          and priority = #{priority}
+    </select>
+    <select id="selectHisFileById" resultType="java.lang.String">
+        select status
+        from stra_his_file
+        where id = #{hisFileId}
+    </select>
+
+    <select id="queryBatchList" parameterType="com.br.marketing.vo.CustomerBatchNumVO"
+            resultType="com.br.marketing.vo.ScoreDetailVo">
+        select * from(select shf.api_code,
+        shf.show_title as cusBatchNumber,
+        mt.batch_number as batchNumber,
+        shf.statistic_file_path as statisticFilePath,
+        shf.id as fileId,
+        DATE_FORMAT(shf.create_time,'%Y-%m-%d %H:%i:%s') as scoreBeginTime,
+        GROUP_CONCAT(distinct msp.product_name order by msp.product_name)as productName,
+        shf.actual_num as actualNum,
+        GROUP_CONCAT(distinct mtut.user_type order by mtut.user_type)as userType
+        from stra_his_file as shf
+        left join b_marketing_strategy_product as msp on shf.id = msp.file_id and msp.is_del=1
+        left join b_marketing_task as mt on mt.api_code = shf.api_code and mt.batch_number = shf.batch_number
+        left join b_marketing_task_extend as mte on mt.id = mte.task_id
+        left join b_marketing_task_user_type as mtut on mtut.batch_number = mt.batch_number and mtut.api_code =
+        mt.api_code
+        left join b_score_doris_log as sdl on sdl.batch_number = shf.batch_number
+        where
+        <choose>
+            <when test="apiCodes!=null and apiCodes.size()!=0">
+                <choose>
+                    <when test="apiCodes.size()==1">
+                        mt.api_code =
+                        <foreach collection="apiCodes" item="item" index="index" separator=",">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        mt.api_code in(
+                        <foreach collection="apiCodes" item="item" index="index" separator=",">
+                            #{item}
+                        </foreach>
+                        )
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                1=1
+            </otherwise>
+        </choose>
+        <if test="scoreTimeList!=null and scoreTimeList.size()>0">
+            and
+            <foreach collection="scoreTimeList" item="item" open="(" close=")" separator="or">
+                (<![CDATA[ shf.create_time>= #{item.scoreBeginTime} and shf.create_time<= #{item.scoreEndTime} ]]>)
+            </foreach>
+        </if>
+        <if test="userTypeSet!=null and userTypeSet.size()>0">
+            <choose>
+                <when test="userTypeSet.size()==1">
+                    and mtut.user_type =
+                    <foreach collection="userTypeSet" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                </when>
+                <otherwise>
+                    and mtut.user_type in(
+                    <foreach collection="userTypeSet" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </otherwise>
+            </choose>
+        </if>
+        and shf.score_status = 2
+        and mt.status != 0
+        and sdl.status = 2
+        group by mt.api_code,batchNumber
+        order by mt.api_code,shf.create_time desc) vie
+    </select>
+
+    <select id="queryCompletStatus" resultType="com.br.marketing.vo.MarketingTaskVO">
+        select
+        bmt.id,
+        shf.id                                            as `hisFileId`,
+        bmt.api_code                                      ,
+        bmt.batch_number                                  as `batchNumber`,
+        bmt.create_time                             as createTime,
+        bmt.update_time                             as updateTime
+        from b_marketing_task bmt
+        left join stra_his_file shf on shf.batch_number = bmt.batch_number
+        left  join b_marketing_task_extend bmte on bmte.task_id = bmt.id
+        left join b_score_rule_config bsrc on bsrc.id = bmte.rule_id
+        where  bsrc.is_del = 1
+        and bmt.status = 1
+        and bmt.monitor_type = 4
+        <if test="apiCode !=null and apiCode!=''">
+            and bmt.api_code = #{apiCode}
+        </if>
+        <if test="taskStatus !=null and taskStatus!=''">
+            and shf.status = #{taskStatus}
+        </if>
+        <if test="conditionType !=null and conditionType!=''">
+            and bmte.condition_type = #{conditionType}
+        </if>
+        <if test="ruleNameShort !=null and ruleNameShort!=''">
+            and bsrc.rule_name_short = #{ruleNameShort}
+        </if>
+        <if test="createTimeStart !=null and createTimeStart!=''">
+            <![CDATA[  and bmt.create_time >=#{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd !=null and createTimeEnd!=''">
+            <![CDATA[  and bmt.create_time <#{createTimeEnd} ]]>
+        </if>
+        order by bmt.create_time desc,bmt.id desc
+    </select>
+
+    <select id="queryLastNonValidationTask" resultType="com.br.marketing.vo.MarketingTaskVO">
+        select bmt.id,
+               shf.id                  as `hisFileId`,
+               bmt.api_code,
+               bmt.batch_number        as `batchNumber`,
+               bmt.status,
+               bmt.priority,
+               bmt.task_number         as `taskNumber`,
+               shf.zipFile_name        as `fileName`,
+               bmt.monitor_type        as `execType`,
+               shf.create_time         as `taskCreateTime`,
+               shf.running_end_time    as `taskUpdateTime`,
+               bmt.is_online           as `isOnline`,
+               case
+                   when shf.status is null then 0
+                   when shf.status = 2 then 2
+                   when shf.status = 0 then 3
+                   when shf.status = 1 then 1
+                   when shf.status = 3 then 1
+                   when shf.status = 4 then 1
+                   when shf.status = 5 then 1
+                   when shf.status = 6 then 1
+                   when shf.status = 7 then 1
+                   when shf.status = 9 then 1
+                   when shf.status = 10 then 4
+                   when shf.status = 11 then 5
+                   else shf.status end as taskStatus,
+               bmt.start_date          as startDate,
+               bmt.close_date          as closeDate,
+               bmt.start_time          as startTime,
+               bmt.create_time         as createTime,
+               bmt.update_time         as updateTime
+        from b_marketing_task bmt
+                 left join stra_his_file shf on shf.batch_number = bmt.batch_number
+        where bmt.api_code = #{apiCode}
+          and bmt.status = 1
+          and bmt.monitor_type != 2
+          and shf.status = 2
+        <if test="batchNumber != null and batchNumber != ''">
+            and bmt.batch_number = #{batchNumber}
+        </if>
+        order by bmt.create_time desc
+        limit 1
+    </select>
+
+
+    <select id="queryNoFinishStatus" resultType="com.br.marketing.vo.MarketingTaskVO">
+        select
+        bmt.id,
+        shf.id                                            as `hisFileId`,
+        bmt.api_code                                      ,
+        bmt.batch_number                                  as `batchNumber`,
+        bmt.create_time                             as createTime,
+        bmt.update_time                             as updateTime,
+        bmte.data_condition                         as dataCondition
+        from b_marketing_task bmt
+        left join stra_his_file shf on shf.batch_number = bmt.batch_number
+        left  join b_marketing_task_extend bmte on bmte.task_id = bmt.id
+        left join b_score_rule_config bsrc on bsrc.id = bmte.rule_id
+        where  bsrc.is_del = 1
+        and bmt.status !=0
+        and (shf.status is null or shf.status!=2)
+        <if test="apiCode !=null and apiCode!=''">
+            and bmt.api_code = #{apiCode}
+        </if>
+        <if test="createTimeStart !=null and createTimeStart!=''">
+            <![CDATA[  and bmt.create_time >=#{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd !=null and createTimeEnd!=''">
+            <![CDATA[  and bmt.create_time <#{createTimeEnd} ]]>
+        </if>
+        order by bmt.create_time desc,bmt.id desc
+    </select>
+    <select id="getByFileId" resultType="com.br.marketing.vo.MarketingTaskVO">
+        select
+            bmt.id,
+            shf.id                  as `hisFileId`,
+            bmt.api_code,
+            bmt.batch_number        as `batchNumber`,
+            bmt.task_number         as `taskNumber`,
+            bmt.monitor_type        as `execType`,
+            bmt.is_online           as `isOnline`
+        from b_marketing_task bmt
+                 left join stra_his_file shf on shf.batch_number = bmt.batch_number
+        where shf.id = #{fileId}
+        order by shf.create_time desc;
+    </select>
+
+    <update id="updateDateWindowByBatchNumber">
+        UPDATE b_marketing_task
+        SET start_date = #{startDate},
+            close_date = #{closeDate},
+            update_time = now()
+        WHERE batch_number = #{batchNumber}
+    </update>
+</mapper>

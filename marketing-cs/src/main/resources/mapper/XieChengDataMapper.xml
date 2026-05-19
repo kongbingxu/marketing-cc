@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.XieChengDataMapper" >
+
+  <select id="selectByLocalId" resultType="com.br.marketing.entity.XieChengData">
+    select
+    *
+    from b_xiecheng_data
+    where  status =1 and push_status =1 and local_id = #{localId};
+  </select>
+  <select id="selectLocalIdByNotSend" resultType="java.lang.String">
+    select
+      local_id
+    from b_xiecheng_data
+    where  status =1 and push_status =1
+    order by id asc limit 10000
+  </select>
+  <select id="getByCellToday" resultType="com.br.marketing.entity.XieChengData">
+    select
+      *
+    from b_xiecheng_data
+    where  status =1 and push_status =2 and sha256_tel = #{cell}
+      and api_code in
+      <foreach collection="apiCodes" open="(" close=")" item="apiCode" separator=",">
+        #{apiCode}
+      </foreach>
+      and create_time > str_to_date(now(), '%Y-%m-%d')
+
+  </select>
+
+  <select id="getByCellTodayAndLocalId"  resultType="com.br.marketing.entity.XieChengData">
+    select
+      *
+    from b_xiecheng_data
+    where  create_date =#{createDate} and local_id not in (2242481,2242482,2272503)
+    <if test="minlocalId !=null and minlocalId>0">
+      and local_id > #{minlocalId}
+    </if>
+    order by local_id limit 5000;
+
+  </select>
+
+  <select id="selectXieChengCall" resultType="com.br.marketing.entity.XieChengData">
+    select id,local_id as localId
+    from b_xiecheng_data
+    where create_time >= #{createTime}
+      and push_status =1 and status =1
+    <if test="id != null and id>0">
+      and id > #{id}
+    </if>
+    order by id limit 5000;
+  </select>
+
+  <select id="getXieChengDataCounttikv_" resultType="java.lang.Integer">
+    select count(distinct sha256_tel)
+    from b_xiecheng_data
+    where <![CDATA[ create_time >=#{requestData} and create_time < #{endData} ]]>
+      and push_status = 2 and status = 1
+    <if test="apiCode != null and apiCode!=''">
+      and api_code = #{apiCode}
+    </if>
+  </select>
+
+  <select id="getUploadCounttikv_" resultType="java.lang.Integer">
+    select count(distinct a.sha256_tel)
+    from b_xiecheng_data as a left join b_marketing_transfer_sync_#{cid} as b
+    on a.sha256_tel = b.cust_num
+    where b.request_data =#{requestData}
+      and a.push_status = 2 and a.status = 1
+      and <![CDATA[ a.create_time >=#{requestData} and a.create_time < #{endData} ]]>
+    <if test="apiCode != null and apiCode!=''">
+      and b.api_code = #{apiCode}
+      and a.api_code = #{apiCode}
+    </if>
+    <if test="convType != null and convType!=''">
+      and b.reserve_field1 ->'$.convType'=#{convType}
+    </if>
+  </select>
+
+  <select id="getReportPushStatusInPeriod" resultType="java.lang.Integer">
+    select
+      report.push_status as pushStatus
+    from
+      b_xiecheng_colliding_data_loop_cycle cycle
+        inner join b_xiecheng_data report on
+        cycle.cell_sha256_code_list = report.sha256_tel
+    where
+      report.sha256_tel = #{cell}
+      and report.api_code = #{apiCode}
+      and cycle.is_delete = 0
+      and cycle.push_time <![CDATA[<]]> report.create_time
+  </select>
+
+  <select id="executeBackSql" resultType="com.br.marketing.client.xiecheng.intput.AdReqDTO">
+    ${sqlParameter}
+    </select>
+</mapper>

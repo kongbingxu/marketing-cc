@@ -1,0 +1,222 @@
+sharding:
+  jdbc:
+    datasource:
+      names: ds0
+      ds0:
+         jdbc-url: jdbc:mysql://192.168.162.192:3306/test_loan?useUnicode=true&characterEncoding=UTF-8
+         username: rule_service
+         password: rule_service_2015-09-10
+         type: com.zaxxer.hikari.HikariDataSource
+         driver-class-name: com.mysql.cj.jdbc.Driver
+         minimum-idle: 1 # 最小空闲连接数
+         maximum-pool-size: 300 # 最大连接池数量
+         connection-timeout: 60000 # 获取连接超时时间，单位毫秒
+         idle-timeout: 300000 # 连接空闲超时时间，单位毫秒
+         max-lifetime: 1800000 # 连接最大生命周期，单位毫秒（30分钟）
+         keepalive-time: 30000 # 连接保活时间，单位毫秒
+         connection-test-query: select 1 # 连接测试查询
+  config:
+        sharding:
+          props:
+            sql.show: true
+logging:
+    level:
+        com.br.off.mapper: debug
+    file:
+      name: ./logs/core.log
+    root: INFO
+otherConfig:
+  alarm:
+        secretKey: 412a281869db3e152d5a276ad444fade
+        mails: xinke.liu@100credit.com,guang.chen@100credit.com,runtong.yuan@100credit.com
+        sendCode: 66618706
+  userCenter:
+    appName: marketing-api
+    appSecretKey: bd3c18667f8fcbb4985d2be66e70ca1e
+  encodeMapping:
+    appName: marketing
+    appSecretKey: c6acc38a39b0769fa7fb1a95f82d9b33
+  warning:
+        pageSize: 5000
+        apiUrl: http://compass-api.100credit.com/api/loan-warning-api/loanStrategy/v2/query
+        path: /Users/chao.z/Desktop/
+        ftpHost: 10.100.123.65
+        ftpPort: 21
+        ftpUsername: dev-controller
+        ftpPwd: 9PdaRcMRphcNctRy
+        email:
+          notice: nengwu.qu@100credit.com,chunliu.le@100credit.com,qianqian.cao@100credit.com,xinke.liu@100credit.com
+cluster:
+  flag: k8s-prod-a
+api:
+  dass:
+    baseUrl: http://testdaas.huiyunai.com
+    postHermesUserData: ${api.dass.baseUrl}/csos-daas/call/postHermesUserData
+    aeskey: ovksl39fcl13m9dF
+    SecretKey: MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJ4W9Hw1Kb6g0RevKSeKqriBCup3x8V2G2J63imkypbtPV+RJjq4eCqcd7s2FI/9eTSMw17675Ey9MkKndIckvpxT1iCtUnuRbg1ICtZ127t65GhOPchBzWHoC+rG56Rw4NhpsvpIGC1y4EUx26TyNop7HRekKwosAnnl6QDWBEdAgMBAAECgYAkX7W7CmRjdw8E+wlmDrK/JvnC/vJZDZa5bvnE7SSr20Qew//ezOjhLQUjbwsGIlUL8UNWjDgo2WeXBjlPycFLP8YN/+gUPR/bfftUY4cTnWzAAKKyUJBeyt3SqaeYcUhW3aUCUlaVAb8ZdyIu4WlHYHhlkSoXrDRvnqlJmyj8wQJBAMzApuvsJDZIX6qvMGR6YTvqPIsl47+qIlk7iTUfwbjGz5zlFtu4IRd+ZVdHlncg5arrl+lOw33rkHhxtnV8jO0CQQDFqGsIPk4Nnwsx9XtCCrYePvgydzEAT1nr4gBUkXbvavMyJKsQWI5AXUAInNuqxRvNfjh3GMaWstIsMQJyDj7xAkEAglL1bCEIA40ZZ1jO4oWKskorcx4Q0oQGDOn6MVgfQ+83YlPmsr+GQJ/w/RbRzM2hoaMHNDcv80wmzqMCUdGPGQJAKIHuhX73UhVRHwj3HL7DOgmfpgAFW9HnVM85UBuLq19YveMD59KuPISf1eQHpMTGgOOoQMgkEshNCF9259cBkQJBAKIlpXnTHvv2M96B7w7T1RYVvjke4LLpCbAVd8fBciOdFLmMh0+FThxGWijgfow1XYaPrU0DlfLpkfLrgk3LWUQ=
+  baiying:
+    baseUrl: https://cos.byai.com
+    postBlackList: ${api.baiying.baseUrl}/api/byai/transform/br/blacklist/import
+  twoSeven:
+    baseUrl: http://8.129.19.178:8888
+    zhuangku: ${api.twoSeven.baseUrl}/zhuangku
+    isProxy: 1
+  marketing:
+    baseUrl: http://k8s.brapp.com/compass-api/api/marketing-api
+    transferUrl: ${api.marketing.baseUrl}/marketingTransferData/receiveTransferDataSync
+    uploadUrl: ${api.marketing.baseUrl}/marketingUserPre/receiveMarketingPreUser
+  halo:
+    openUrl: https://fat-hello-openapi.hellobike.com/openapi
+    appKey: hellobikefinance-bwYuIVvO
+    secret: b3392af427b6449e94269433bdf5fb58
+    method: hello.finance.loan.marketing.callback
+    isProxy: false
+  xiecheng:
+    openUrl: https://cgcallback-fat.ctripqa.com/nemoweb/ad/common/outAdMonitor.do
+    appId: bairong001
+    appIdVt: test002
+    keyVt: 6b219b9e71fdb2d2
+    ivVt: 5e7b6c07d3edbc01
+    signKeyVt: b8845b4cb1f16471
+    key: f3df6f62f0527bf0
+    iv: 3b2dac323465b024
+    singKey: 95cc01ec07387a44
+    source: BaiRong_C01
+    channel: commonOutAdMonitor
+    isProxy: false
+  zhongAn:
+    baseUrl: https://finance-gateway-test.diandian.com.cn
+    api: ${api.zhongAn.baseUrl}/fcpGateway
+    isProxy: false
+    rsapKey: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCVuaxc7ZznPdvsH0nhd2eQ/uhu/LewJqUVMvdYUKwXPxzGBUz8cVKyltwpMJ03uMPx+RStWnkWcmCSeQdqiw27FtaPELOxxQQc06OGBXfp5R86MKp2+bkdPRSkpUKK2X8vCyiopQojBXbaVzRUwjPPsQAsDinCGkSUirWETxfCxwIDAQAB
+    xdCode: 07brdyy01
+    bxCode: 3360001
+  didi:
+    baseUrl: https://admarketing-manhattan.xiaojukeji.com
+    smsUrl: ${api.didi.baseUrl}/crow/collision/bairong
+    reachUrl: ${api.didi.baseUrl}/crow/user/success/bairong
+    jmassSUrl: ${api.didi.baseUrl}/model/sample/bairong
+    failedUrl: ${api.didi.baseUrl}/crow/faileduser/mediaName
+    collidingUrl: ${api.didi.baseUrl}/crow/collision/mediaName
+    callbackSuccessUrl: ${api.didi.baseUrl}/crow/user/success/mediaName
+    blackDataUrl: ${api.didi.baseUrl}/crow/unsubscribe/mediaName
+    token: DK&SgWl!fZ%WVSXe
+    scas: "0001"
+    channelId: 3140738836439875
+    channelIdMap: "{bairong:'3140738836439875',bairongA:'3140738898634899'}"
+    isProxy: true
+  wuba:
+    transferUrl: https://gateway-convenientloan.58v5.cn/thirdpartnar/v1/getConversionList
+    isProxy: false
+  qifu:
+    baseUri: https://stg1-gws-bps-web.daikuan.360.cn
+    baseCuDongZhiUri: https://stg2-gws-bps-web.daikuan.360.cn
+    saveReachDeleteRecordUrl: ${api.qifu.baseUri}/api/gws/bps/gateway/agent/operation/agentOperationSaveReachDeleteRecord
+    saveReachDeleteRecordCuDongZhiUrl: ${api.qifu.baseCuDongZhiUri}/api/gws/bps/gateway/agent/operation/agentOperationActSaveReachDeleteRecord
+    qrySleepUserRealMessageUrl: ${api.qifu.baseCuDongZhiUri}/api/gws/bps/gateway/operation/batchQrySleepUserRealMessage
+    qryUserRealMessageUrl: ${api.qifu.baseCuDongZhiUri}/api/gws/bps/gateway/agent/operation/batchQryUserRealMessage
+    qifuPublicKey: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwQAaMvE6+7Wy+rf6jfW8OEKhGSmmg6LaiSLaTui3lBA4V4eqfQEpLfL8dGYYcakiH6CUAMPZ0jqNEN/En3Mtfclhr8903m/xG3IOUxhbqiVZBZmQ8esG6nP8MHsFWK2hMHN20xh0qKN6hg0BHQIIkbbnZjN9FGD/hz1t4NJvwIHxqJC+I3pRkCrC+SPWH5djzQdhYczgpyGwNqrGpg5dPibZJ+/qw15Va0vDBMp8cGad+Njcw5n7QcxBvSpViTYl704+wyohX36bF1CkrtfV6z1JnDqR+9KtEaRpfnUC/eh7gvltDbl/vTfeZLuShLs+/csgVshVIXEpL8g9uC0XOQIDAQAB"
+    brPrivateKey: "MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDdAO5CXKe5ugLICKdPeAXE7/4V484BPYdZVMoexCoWN7vwFV1dW8AyjsOYvvMOYSd/MOCqE0sK4CN/Tf857nalMqA5oU+MIEUkbb+KyXFXpNFi/LLi8FGGHQgTQFAS+Tikz1sHtYg3W8G7wQJsTDKXGQ7dEH9pJv3RbGZzQnTlzj/1brJ8uDGXYmKVPr2MbuOmtzCzzd9O0cPO1fEVwpnJbAUfQxZleMUL21OpkmTjqIBQfANf/24DjbJelZjRUA7YIR42XpxGXWeOlXR1D3jzIN0lguacwy+en3JvhbC62E6f04rzqs3TThlKxH4cjFZjOPvoGml2Z43S1k46lPjtAgMBAAECggEBANTyjKFM/iArZ3qvO+eK0qRMSxt0gY8YZk5hMNAsXBFEasaPD4NhYPRWM4n+k9yLKK+ZvSCjrm8wQYPs97wuVgwfl9tv32I5xeWwChwEtj2pBkjHDOc2gJclah6CnaVqlnXXhvMKq9ILi8UJ2PfZA/YrovLHbr03YOJl/OGaa2DxbIyDQsz8LH/4o7QLaRkAkwZw3egd/jepSB9hZwZ8NghkpqbSnRokjH+Rfx9b8uQ/MIqIfDXD8gMCALV+JFjG60mP/yGYS9xb1pHiW07M3QphYo8IV+X1YCnJ1nt7FrAQaPUIe+/zJhFsBM7EN6hX4RdqTacnpKZ0IfEOn/jU9YECgYEA9DLxbNPaAm5HnBA0tD7euFokyP9td8+EVhjeMPCZqPlVnWDm3c9bdrAWQbtwyMA0gvkcELtgFnPf0ICuV2FCKaTPtPa6C73ZR5ElBWkJ/pSbyYw8YGvN98Nh8xbEVqippN5Ypp8vQrZAT5A/qoekq0kYTS7Ymgqj7pq3xIPfHUUCgYEA568H8/qyhmrna84pAQf9gz3ln6EQWm/RfdOi+v42ZdL6sjmpHfT0VYaBuxc54D6OvhvPSoYizhZaHLuDnioaGwkDgducA057EIumDgn2Fvw1mUfcKymGngk4Z5GiWsFqJ66yO5X7ci/4JaD9rG8sKI0JKkhfhL0EyrzgWIykg4kCgYEAvy0eus9EDsEdSL2bNT0/Cd5wi/cEUVbhyLGhSXkjIxlIAHR7aU1L0qhaVE2VJ2Tp91tksGiw+gLvRoFne7sFnCqN/aNm1YhkkVW9QPYRv//B0tD595aOYhjRFwlM3ncekJcNmixnSHf78w3/+dZFgV8xKkOxiS8pVcREeBGxW20CgYBAbLuZbK0YE8ImiD1+u+oTBLNFoFQb0dw/UQqRIP+fcPulc8NDQUpwPeb1T5AYe0zWMIWEA6jKBg0o0DvZT3vS6L7A7YCEqt4ty6dxX/O+kIOXDBR9LB7y8z1sD2NGOWJ7hmipiRtStWQbkpj3yjJNVGqoB1gIYUdj2QHJndJhgQKBgQDTkCUFF0CgiBWUIyI96RkaSW/9/+3PAFojgHrbp93RLsW18j+YVZOyvQshhmNjlhEs2cONLYdNl5kPEi4yt/f8TrFbKBSgBlO0t9u0z0tAo+xfpocTzmYCw1eDnkXWxzZLwBSsB3Vkt7GJb11Uee7HW4MjHOTXuUvdQ8Alg+NXqw=="
+    brPublicKey: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3QDuQlynuboCyAinT3gFxO/+FePOAT2HWVTKHsQqFje78BVdXVvAMo7DmL7zDmEnfzDgqhNLCuAjf03/Oe52pTKgOaFPjCBFJG2/islxV6TRYvyy4vBRhh0IE0BQEvk4pM9bB7WIN1vBu8ECbEwylxkO3RB/aSb90Wxmc0J05c4/9W6yfLgxl2JilT69jG7jprcws83fTtHDztXxFcKZyWwFH0MWZXjFC9tTqZJk46iAUHwDX/9uA42yXpWY0VAO2CEeNl6cRl1njpV0dQ948yDdJYLmnMMvnp9yb4WwuthOn9OK86rN004ZSsR+HIxWYzj76BppdmeN0tZOOpT47QIDAQAB"
+    isProxy: false
+  zhijia:
+    baseUri: https://openapi.autohome.com.cn/che168/apiclueopen
+    addC1HiqClueUrl: ${api.zhijia.baseUri}/CarEstimate/AddC1HiqClue.ashx
+    getTokenUrl: https://openapi.autohome.com.cn/api/oauth2/authorize
+    brandUrl: ${api.zhijia.baseUri}/public/getbrands.ashx
+    seriesUrl: ${api.zhijia.baseUri}/public/getseriesbybrandId.ashx
+    cityInfoUrl: ${api.zhijia.baseUri}/public/queryarea.ashx
+    zhiJiaClientId: JwpfGWx6hkxgIqUI7ncBjy0m7cQg1r39
+    zhiJiaClientSecret: pQDg3DG3qWfkIfDqH8NVLZnhBOvxJjlW
+    zhiJiaClientAppid: 1742
+    zhiJiaClientEncryption: wE2FKj/Vb10=
+  tongchengAgentMkt:
+    baseUrl: https://mns.qa.lylend.com
+    address: ${api.tongchengAgentMkt.baseUrl}/api/cep/agent/mkt/baiRong
+    secretKey: JhcwsW4ArsdJ8kjcXQnW734ydF7brpMZywg3T9MXRNAwqTcSW3UasDTFAUheAV24
+    isProxy: false
+  biocloo:
+    baseUrl: http://58.33.156.202:57436
+    blackList: ${api.biocloo.baseUrl}/api/middle/robotai/v1/process_data
+    isProxy: false
+  smy:
+    baseUrl: https://gateway.smyjf.cn:8077/mlp/tx-srm-docker-03
+    modelTagUrl: ${api.smy.baseUrl}/bdapi/channel/modelTag
+    merchantNo: "G840120241220"
+    smyPublicKey: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCfBhVo3eKDFO9Q0/H8BT7OZZhaWSZ5SKi4jgCe9GfIbrfwk4n3xWDr/iNqZAiRHfL7z58Ru12sod7jsTP5MHtPfZgcb+c4wMsICtQD+lbdMuG0NmqP6GCNbhB0DGpKCJpFk/y5SrqUoEt/2Vgluko9++a4vdqvZYjzrMMjdyaPHwIDAQAB"
+    marketPubklicKey: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCpp2RjLWvUURAdH/vRavhgRvA710LzbBQvlsJrWq2kPxJRvNPMZm4vIEc7gfgBB+oUmc130HKRobMuIjVuYghVNsW0+R3nZqVhO3kmSxGW+iaZWc0tOH7m3MSR/cc56o4vMXshl7sqp9x6WI4apleQP3Xz2ejQ7SVDnnHD1KEBlQIDAQAB"
+    marketPrivateKey: "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKmnZGMta9RREB0f+9Fq+GBG8DvXQvNsFC+WwmtaraQ/ElG808xmbi8gRzuB+AEH6hSZzXfQcpGhsy4iNW5iCFU2xbT5HedmpWE7eSZLEZb6JplZzS04fubcxJH9xznqji8xeyGXuyqn3HpYjhqmV5A/dfPZ6NDtJUOeccPUoQGVAgMBAAECgYB1jI9JDLK29Mfmdj/D9YtNIjnYLKmuAkfmRV5GhhjkQfNOgTh7Wsmji4jvmXkeNb6iMYMlLmADufdt0rQU3IYKaSP0Nf0AK4lNSxHOftpa8Tdd5Q5mZieqJ0tmVXq8uSUJgkzIJjR5R5iZPBL0p2oYD9R2jnQoBd6zuOrD7TXdAQJBAPG0D9H//nKnknUCuHnNGH/V+yE5VBrnTAfupSzVik2XM+7tV7VuTnOFumDY2V3cd5QBVGVixtxO8avAGBJuskECQQCzsFZbD5nJREScfWCDt4aao7MPnkw408vW9qut8fYKEN8b+rvP/zXJSrhXerWl0ydcpNbpxuua+9L03J0hB1JVAkEAjR6MfhfxABBGunq0KqlMvJa64VMPgAW7poX3eo3TCipV8BIzO4MD2v8hKppxjxPB3XBJTki1wrt07sphQ6HOAQJAJaUR0m4IR/Q3c5mIuM+gMZGOF/2P9m/YyqZO/VgttZonQ9NZuY+8EvnGeP1KRP1hx7T5GW0FOyj63zXA7YR9KQJAd3oi5bPXR2zfgkgFVVTSr4I0Yc3ALJEG5HKMWTluHWb0K55ZF54k/gzaK8dgtW1PUxOrqkFgv2XyNgvwr5r7pQ=="
+    isProxy: false
+  sanliuling:
+    baseUrl: http://promote-dev.daikuan.360.cn
+    batch: ${api.sanliuling.baseUrl}/open_api/v1/apply/batch
+    isProxy: false
+  syj:
+    baseUrl: https://partner.yhyunjin.com
+    code: bairong
+    originalUrl: ${api.syj.baseUrl}/yjPart/${api.syj.code}
+    blackUrl: ${api.syj.baseUrl}/yjPart/blackList/insertUnsubscribeData/${api.syj.code}
+innerSftp:
+  uploadpath: /UploadFiles/marketing/
+#elastic-job配置
+#elastic-job配置
+SERVER_LISTS: speed-zk-01.brapp.com:2181,speed-zk-02.brapp.com:2181,speed-zk-03.brapp.com:2181
+NAMESPACE: warning-job
+BASE_SLEEP_TIME_MILLISECONDS: 1000
+MAX_SLEEP_TIME_MILLISECONDS: 3000
+MAX_RETRIES: 3
+NESTED_PORT: -1
+NESTED_DATA_DIR: target/test_zk_data/
+corn:
+  closeDateAlarmJob: 00 00 10 * * ?
+  sftpDeleteMonitorJob: 00 0/2 00-23 * * ?
+  ftpDeleteMonitorJob: 00 0/2 00-23 * * ?
+  finishPutJob: 00 00 10 * * ?
+  ftpToDbJob: 00 0/2 00-23 * * ?
+  sftpToDbJob: 00 0/2 00-23 * * ?
+  monitoringExpirationAlarmJob: 00 00 10 * * ?
+  progressReportJob: 00 00 09 * * ?
+  reportJob: 00 00 18 * * ?
+
+rocketmq:
+  # 多个NameServer，host:port;host:port，RocketMQProperties
+  name-server: 10.100.123.171:9876;10.100.123.172:9876;10.100.123.173:9876
+  producer:
+    # 发送同一类消息的设置为同一个group，保证唯一
+    group: Marketing_Default_Group
+    # 发送消息失败重试次数，默认2
+    retryTimesWhenSendFailed: 3
+    # 异步消息重试此处，默认2
+    retryTimesWhenSendAsyncFailed: 2
+    # 发送消息超时时间，默认3000
+    sendMessageTimeout: 5000
+    # 消息最大长度，默认1024 * 1024 * 4(默认4M)
+    maxMessageSize: 4194304
+    # 压缩消息阈值，默认4k(1024 * 4)
+    compressMessageBodyThreshold: 4096
+    # 是否在内部发送失败时重试另一个broker，默认false
+    retryNextServer: false
+    # access-key
+    #accessKey: xxx
+    # secret-key
+    #secretKey: xxx
+    # 是否启用消息跟踪，默认false
+    enableMsgTrace: false
+    # 消息跟踪主题的名称值。如果不进行配置，可以使用默认的跟踪主题名称
+    customizedTraceTopic: RMQ_SYS_TRACE_TOPIC
+    namespace: ${ROCKETMQ_NAMESPACE:dev_local}
+  consumer:
+    #    # 配置指定group是否启动监听器 group1.topic1 = false
+    #    listeners:
+    #      # key：group名称
+    #      rocketmq_source_code_group:
+    #        # value：{key: topic名称: value: true/false}
+    #        rocketmq_source_code: true
+    # 指定消费组
+    group: Marketing_Default_Group
+    # 指定topic，启动时就会注册
+    #topic: springboot_consumer_xxx
+    # 一次拉取消息最大值，注意是拉取消息的最大值而非消费最大值
+    pull-batch-size: 5
+    # 其他配置参考属性类
+    namespace: ${ROCKETMQ_NAMESPACE:dev_local}

@@ -1,0 +1,1488 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.MarketingTransferSyncUserMapper">
+    <sql id="Example_Where_Clause_1">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <select id="getNewestByCusnum" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${cid}
+        where cust_num = #{caseNum}
+        order by create_time desc limit 1;
+    </select>
+
+    <select id="getNewestByCusnumAndApicode" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from b_marketing_transfer_sync_${cid}
+        where cust_num=#{caseNum} and api_code=#{apicode} and user_type=#{userType}
+        <if test="timeAddHour !=null and timeAddHour !=''">
+            <![CDATA[ and create_time<= #{timeAddHour} ]]>
+        </if>
+        order by create_time desc limit 1;
+    </select>
+
+    <select id="selectLatestTransferSyncUser" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tcId}
+        where api_code = #{apiCode}
+          and cust_num = #{custNum}
+        <if test="userType != null and userType != ''">
+          and user_type = #{userType}
+        </if>
+        order by create_time desc, id desc limit 1;
+    </select>
+
+    <select id="getNewestByCusnumInHour" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from b_marketing_transfer_sync_${cid}
+        where cust_num=#{caseNum}
+        <if test="timeAddHour !=null and timeAddHour !=''">
+            <![CDATA[ and create_time<= #{timeAddHour} ]]>
+        </if>
+        order by create_time desc limit 1;
+    </select>
+
+    <select id="getTransferOrderInsertTime" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${cid}
+        where request_data=#{data}
+        order by cust_num desc,insert_time desc,id desc
+        limit #{limitStart},#{pageSize};
+    </select>
+
+    <select id="getTransferDataByRequestDataAndApiCode" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${cid}
+        where request_data=#{data} and api_code = #{apiCode}
+        order by id desc
+        limit #{limitStart},2000;
+    </select>
+
+    <select id="getTransferByRequestData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${cid}
+        where
+        <![CDATA[  request_data = #{endDate} ]]>
+        order by create_time desc,id desc limit #{limitStart},2000;
+    </select>
+
+    <select id="getTransferByStartAndEndDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select t2.* from b_marketing_transfer_sync_${transferSyncUser.tCid} t2,(select id from
+        b_marketing_transfer_sync_${transferSyncUser.tCid}
+        where
+            <if test="transferSyncUser.apiCode != null and transferSyncUser.apiCode.trim() neq ''">
+                api_code=#{transferSyncUser.apiCode}
+            </if>
+            <![CDATA[ and request_data >= #{startDate}  and  request_data <= #{endDate} ]]>
+        order by
+        <choose>
+            <when test="orderByClause != null and orderByClause.trim() neq ''">
+                ${orderByClause}
+            </when>
+            <otherwise>
+                id
+            </otherwise>
+        </choose>
+        limit ${rowCount},${offset}
+        ) as t1 where t1.id = t2.id
+    </select>
+    <select id="getTransferByStartAndEndDateYiXinV4" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from b_marketing_transfer_sync_${tCid}
+        where
+            <if test="apiCode != null and apiCode.trim() neq ''">
+                api_code=#{apiCode}
+            </if>
+            <![CDATA[ and request_data = #{requestDate} ]]>
+            <![CDATA[ and id >= #{beginId} and id < #{endId} ]]>
+        order by id
+    </select>
+    <select id="maxIdByCid" resultType="java.lang.Long">
+        SELECT
+        max(id) as id
+        FROM
+        b_marketing_transfer_sync_${tCid}
+        where
+            <if test="apiCode != null and apiCode.trim() neq ''">
+                api_code=#{apiCode} and
+            </if>
+        request_data = #{requestDate}
+    </select>
+    <select id="minIdByCid" resultType="java.lang.Long">
+        SELECT
+        min(id) as id
+        FROM
+        b_marketing_transfer_sync_${tCid}
+        where
+        <if test="apiCode != null and apiCode.trim() neq ''">
+            api_code=#{apiCode} and
+        </if>
+        request_data = #{requestDate}
+    </select>
+
+
+    <select id="getTransferData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+            b_marketing_transfer_sync_${cid}
+        where
+        <![CDATA[  request_data < #{endDate} ]]>
+        and api_code = #{apiCode}
+        <if test="indexId != null and indexId!=''">
+            and id > #{indexId}
+        </if>
+        order by id limit #{pageSize};
+    </select>
+
+    <select id="getTransferNewData" resultType="com.br.marketing.entity.MarketingNewTransferData">
+        select sha256_code_list,result,org_channel,mkt_level
+        from b_xiecheng_sms_colliding_data_log_vt
+        where send_date = #{day}
+        order by id desc limit #{limitStart},2000;
+    </select>
+
+    <select id="getTransferByCpsLog" resultType="com.br.marketing.entity.MarketingNewTransferData">
+        select cell_sha256_code_list as sha256_code_list, result, org_channel, mkt_level
+        from b_xiecheng_cps_colliding_data_log
+         <![CDATA[  where create_time >= date (now()) and create_time < date (now()) + interval 1 day ]]>
+        order by id desc limit #{limitStart}, 2000;
+    </select>
+
+
+    <select id="getTransferDataByDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+            b_marketing_transfer_sync_${cid}
+        where
+        <![CDATA[  request_data = #{endDate} ]]> and api_code = #{apiCode}
+        order by id desc limit #{limitStart},2000;
+    </select>
+
+
+    <select id="getNewTransferDataByCellList" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        SELECT
+        b.cust_num,
+        b.reserve_field1,
+        b.request_time
+        FROM
+        (
+        SELECT
+        cust_num,
+        max( request_time ) AS request_time
+        FROM
+        b_marketing_transfer_sync_${cid}
+        WHERE
+        cust_num IN
+        <foreach collection = "custNumList" item = "custNumList" open = "(" separator = "," close = ")" >
+            #{custNumList}
+        </foreach >
+        and api_code = #{apiCode}
+        GROUP BY
+        cust_num
+        ) AS a
+        LEFT JOIN b_marketing_transfer_sync_${cid} b ON a.cust_num = b.cust_num
+        AND a.request_time = b.request_time and b.api_code = #{apiCode}
+    </select>
+
+
+    <select id="getTransferByApplyDt" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+            b_marketing_transfer_sync_${cid}
+        where api_code=#{apiCode}
+        and apply_result=1
+         <![CDATA[ and apply_dt > #{startDay} and apply_dt < #{endDay} ]]>
+        order by apply_dt desc,id desc limit #{limitStart},2000
+    </select>
+
+    <select id="getByInCustAndCaseEffective" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tcId}
+        where api_code=#{apiCode} and case_effective ='0'
+        and cust_num in
+        <foreach collection="custs" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getCustNumByApplyLoan" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tcId}
+        where api_code=#{apiCode} and
+        <![CDATA[ request_data = #{eliminateDate} ]]>
+        and reserve_field1 ->'$.applyLoan'='1';
+    </select>
+
+    <select id="getTransferByTransformTypeAndStatus" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select ts.id,ts.cust_num,ts.reserve_field1,ts.create_time,ts.user_type,ts.if_transform from  b_marketing_transfer_sync_${tcId} ts
+        where <![CDATA[  ts.request_data = #{endDate} ]]> and ts.api_code=#{apiCode}
+        order by ts.create_time desc,ts.id desc limit #{limitStart},2000
+    </select>
+
+    <select id="getTransferOrderInsertTimeByCustNum" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select b.* from
+        (
+            select cust_num,max(insert_time) as insert_time
+            from b_marketing_transfer_sync_${cid} a
+            where cust_num in
+            <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+                #{custNum}
+            </foreach>
+            <if test="date != null and date!=''">
+              and request_data = #{date}
+            </if>
+            and (IFNULL(reserve_field1,'') ='' or reserve_field1 not like '%"transform":"1"%')
+            group by cust_num
+        ) as a
+        left join b_marketing_transfer_sync_${cid} b on a.cust_num = b.cust_num and a.insert_time = b.insert_time
+    </select>
+
+    <select id="getTransferOrderRequestTimeByCustNum" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select b.* from
+        (
+        select cust_num,max(request_time) as request_time
+        from b_marketing_transfer_sync_${cid} a
+        where cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        <if test="date != null and date!=''">
+            and request_data = #{date}
+        </if>
+        group by cust_num
+        ) as a
+        left join b_marketing_transfer_sync_${cid} b on a.cust_num = b.cust_num and a.request_time = b.request_time
+    </select>
+
+    <select id="getTransferByApiCodeAndCreateTime" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            <![CDATA[ AND create_time >= #{startDate} and create_time < #{endDate} ]]>
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="findTransferByApiCodeAndCreateTimePage" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select t2.* from b_marketing_transfer_sync_${transferSyncUser.tCid} t2,(select id from
+        b_marketing_transfer_sync_${transferSyncUser.tCid}
+        <where>
+            <if test="transferSyncUser.apiCode != null and transferSyncUser.apiCode.trim() neq ''">
+                AND api_code=#{transferSyncUser.apiCode}
+            </if>
+            <if test="startTime != null and startTime.trim() neq '' and endTime != null and endTime.trim() neq ''">
+                AND create_time between #{startTime} and #{endTime}
+            </if>
+            <if test="transferSyncUser.ifLogin != null and transferSyncUser.ifLogin.trim() neq ''">
+                AND if_login=#{transferSyncUser.ifLogin}
+            </if>
+            <if test="transferSyncUser.ifApply != null and transferSyncUser.ifApply.trim() neq ''">
+                AND if_apply=#{transferSyncUser.ifApply}
+            </if>
+            <if test="transferSyncUser.applyResult != null and transferSyncUser.applyResult.trim() neq ''">
+                AND apply_result=#{transferSyncUser.applyResult}
+            </if>
+            <if test="transferSyncUser.ifLent != null and transferSyncUser.ifLent.trim() neq ''">
+                AND if_lent=#{transferSyncUser.ifLent}
+            </if>
+            <if test="transferSyncUser.requestData != null and transferSyncUser.requestData.trim() neq ''">
+                AND request_data=#{transferSyncUser.requestData}
+            </if>
+        </where>
+        order by
+        <choose>
+            <when test="orderByClause != null and orderByClause.trim() neq ''">
+                ${orderByClause}
+            </when>
+            <otherwise>
+                id
+            </otherwise>
+        </choose>
+        limit ${rowCount},${offset}
+        ) as t1 where t1.id = t2.id
+    </select>
+    <select id="getTransferUserByCreateTimeOrder" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tcId}
+        where
+        <![CDATA[  create_time >= #{startTime}
+        and create_time < #{endTime} ]]>
+        <if test="apiCode !=null and apiCode !=''">
+            and api_code = #{apiCode}
+        </if>
+        order by create_time desc limit #{pageIndex},#{pageSize}
+
+    </select>
+
+    <select id="findByApplyResultAndRequestDataAndApplyDtPage"
+            resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select cust_num, apply_result, apply_dt, type, create_time, reserve_field1,user_type,api_code
+        from b_marketing_transfer_sync_${tcId} t1,
+        (select id from b_marketing_transfer_sync_${tcId}
+        where apply_result = #{applyResult}
+        <if test="apiCode !=null and apiCode !=''">
+            and api_code = #{apiCode}
+        </if>
+        and <![CDATA[ request_data=#{requestDate} and apply_dt<='${applyDt} 23:59:59' ]]>
+        order by apply_dt desc, id desc limit #{rowCount}, #{offset}) as t2
+        where t1.id = t2.id
+    </select>
+
+    <select id="getCustNumSet" resultType="java.lang.String">
+        select cust_num from b_marketing_transfer_sync_${tcId}
+        where (case_effective=#{caseEffective}
+        or (<![CDATA[ request_data=#{requestDate} and apply_dt>=#{applyDt} and apply_dt<='${requestDate} 23:59:59' ]]>
+        and apply_result is not null and apply_result!=''))
+        <if test="apiCode !=null and apiCode !=''">
+            and api_code = #{apiCode}
+        </if>
+        <if test="custNumSet !=null and custNumSet.size() !=0">
+            and cust_num in
+            <foreach collection="custNumSet" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        group by cust_num
+    </select>
+
+    <select id="getJuZiDRuleTransferData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            unlent_amount > '0.00'
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            AND request_data = #{requestData}
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getJuZiCRuleTransferData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            audit_amount > '0.00'
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            AND request_data = #{requestData}
+            AND  json_unquote(json_extract(reserve_field1,'$.applyLoan')) = '0'
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getJuZiBRuleTransferData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            if_apply= '0'
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            AND request_data = #{requestData}
+            AND if_lent= '0'
+            AND <![CDATA[  register_time >= #{registerTime} and register_time < #{requestData} ]]>
+            AND  json_unquote(json_extract(reserve_field1,'$.applyLoan')) = '0'
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getJuZiARuleTransferData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            if_login= '1'
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            AND request_data = #{requestData}
+            AND if_apply= '0'
+            AND if_lent= '0'
+            AND <![CDATA[  login_time >= #{loginTime} and login_time < #{requestData} ]]>
+            AND  json_unquote(json_extract(reserve_field1,'$.applyLoan')) = '0'
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getJuZiDRuleLockData" resultType="java.lang.String">
+        select cust_num from
+        b_marketing_transfer_sync_${tCid}
+        where
+        cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        AND unlent_amount= '0.00'
+        AND lent_time >= #{lentTime}
+    </select>
+
+    <select id="getJuZiCRuleLockData" resultType="java.lang.String">
+        select cust_num from
+        b_marketing_transfer_sync_${tCid}
+        where
+        cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        AND json_unquote(json_extract(reserve_field1,'$.applyLoan')) = '1'
+        AND json_unquote(json_extract(reserve_field1,'$.applyLoanTime'))>= #{applyLoanTime}
+    </select>
+
+    <select id="getJuZiBOrARuleLockData" resultType="java.lang.String">
+        select cust_num from
+        b_marketing_transfer_sync_${tCid}
+        where
+        cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        AND apply_dt >=#{applyDt}
+    </select>
+
+    <select id="getTransferDataCount" resultType="java.lang.Integer">
+        select count(id) from
+        b_marketing_transfer_sync_${tcId}
+        where
+        api_code = #{apiCode}
+        AND request_data = #{requestData}
+    </select>
+
+    <select id="getConvtypeData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tcId}
+        where request_data = #{requestData}
+          AND json_unquote(json_extract(reserve_field1, '$.convType')) = #{convType}
+        group by cust_num
+        order by id asc  limit #{limitStart}, 500
+    </select>
+
+    <select id="getCustNumAndConvtypeData" resultType="java.lang.String">
+        select cust_num
+        from b_marketing_transfer_sync_${tcId}
+        where request_data = #{requestData}
+        and cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+          AND ${convTypeStr}
+    </select>
+
+    <select id="getRsToPolicyData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tcId}
+        where request_data = #{requestDate}
+        and user_type in
+        <foreach collection="userTypes" item="userType" open="(" separator="," close=")">
+            #{userType}
+        </foreach>
+        <if test="ifActivity != null ">
+            and reserve_field1->'$.ifActivity'=#{ifActivity}
+        </if>
+        <if test="activityTime != null ">
+            and replace(substring(reserve_field1->'$.activityTime',1,11),'"','')=#{activityTime}
+        </if>
+        <if test="ifApply != null ">
+            and if_apply=#{ifApply}
+        </if>
+        <if test="applyDt != null ">
+            and STR_TO_DATE(apply_dt,'%Y-%m-%d') = #{applyDt}
+        </if>
+        <if test="minId != null and minId>0">
+            and id > #{minId}
+        </if>
+        order by id asc
+        limit #{pageSize}
+    </select>
+
+    <select id="getRsToPolicyDataByRegisterTime" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tcId}
+        where api_code = #{apiCode}
+          and user_type in
+        <foreach collection="userTypes" item="userType" open="(" separator="," close=")">
+            #{userType}
+        </foreach>
+        <if test="ifApply != null ">
+            and if_apply=#{ifApply}
+        </if>
+        <![CDATA[ and register_time >= #{registerStartTime} and register_time < #{registerEndTime} ]]>
+        <if test="minId != null and minId>0">
+            and id > #{minId}
+        </if>
+        order by id asc
+        limit #{pageSize}
+    </select>
+
+    <select id="getJuZiARuleData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            api_code = #{apiCode}
+            and request_data = DATE_FORMAT(now(),"%Y-%m-%d")
+            and if_apply = '1'
+            and (apply_result is null or apply_result ='')
+            and  audit_amount >= 1000
+            and  apply_dt between DATE_SUB(DATE_FORMAT(now(),"%Y-%m-%d"),INTERVAL 1 day) and DATE_FORMAT(now(),"%Y-%m-%d")
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            order by id asc limit 2000;
+        </where>
+    </select>
+    <select id="getJuZiBRuleData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        SELECT  a.* FROM b_marketing_transfer_sync_${tCid} a
+        INNER JOIN b_phone_sale_extend_info b ON a.cust_num = b.cust_num
+        WHERE
+        a.api_code = #{apiCode}
+        and
+            b.status ="a"
+        AND (
+        b.create_time BETWEEN DATE_SUB( date_format(now(),"%Y-%m-%d"), INTERVAL 2 DAY ) AND DATE_SUB(date_format(now(),"%Y-%m-%d"), INTERVAL 1 DAY )
+        OR  b.create_time BETWEEN DATE_SUB(date_format(now(),"%Y-%m-%d"),INTERVAL 6 DAY ) AND DATE_SUB( date_format(now(),"%Y-%m-%d"), INTERVAL 5 DAY )
+        )
+        <if test = "minId != null and minId >0">
+            AND a.id >= #{minId}
+        </if>
+
+        ORDER BY
+        a.id ASC
+        LIMIT 2000;
+
+    </select>
+    <select id="getJuZiCRuleData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            api_code = #{apiCode}
+            and
+            request_data = DATE_FORMAT(now(),"%Y-%m-%d")
+            and if_apply = '1'
+            and (apply_result is null or apply_result ='')
+            and  audit_amount >= 1000
+            and  login_time between DATE_SUB(DATE_FORMAT(now(),"%Y-%m-%d"),INTERVAL 1 day) and DATE_FORMAT(now(),"%Y-%m-%d")
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getJuZiDRuleData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        <where>
+            api_code = #{apiCode}
+            and
+            request_data = DATE_FORMAT(now(),"%Y-%m-%d")
+            and if_login = '1'
+            and (if_apply is null or if_apply ='')
+            and (apply_result is null or apply_result ='')
+            and (if_lent is null or if_lent ='')
+            <if test="minId != null and minId >0">
+                AND id >=#{minId}
+            </if>
+            order by id asc limit 2000;
+        </where>
+    </select>
+    <select id="getValidityPeriodData" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from
+        b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode}
+          and cust_num =#{custNum} and audit_amount!=null and audit_amount!='' and lent_amount!=null and lent_amount!='' <![CDATA[ and audit_amount-lent_amount <1000 ]]>
+    </select>
+
+
+
+    <select id="getTransferOfRdRFs" resultType="com.br.marketing.vo.TransferOfRdRFVO">
+        select cust_num as custNum
+               ,request_data as requestData
+               ,request_time as requestTime
+               ,reserve_field1 as reserveField1
+        from b_marketing_transfer_sync_${tcId}
+        where
+              api_code = #{apiCode}
+          and request_data >= #{requestDate}
+          and cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+    </select>
+
+    <select id="getTransferCustNumsRangReqDateByPage" resultType="java.lang.String">
+        select b.cust_num
+        from (select id from
+            b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode}
+           <![CDATA[ and request_data >= #{begingDate} and request_data <= #{endDate} ]]>
+        order by request_data desc,id desc limit #{pageIndex},#{pageSize}) as a
+        ,b_marketing_transfer_sync_${tCid} as b
+        where a.id = b.id
+    </select>
+
+    <select id="getTransferReqDateAndIdByPage" resultType="com.br.marketing.vo.TransferOfCnIdVO">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode} and request_data = #{requestDate}
+        <if test="minId != null and minId >0">
+            and id > #{minId}
+        </if>
+        order by id asc limit 2000;
+    </select>
+
+    <select id="getTransferByRequestDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode} and request_data = #{requestDate}
+        <if test="minId != null and minId >0">
+            and id > #{minId}
+        </if>
+        order by id asc limit 2000;
+    </select>
+
+    <select id="getTransferByRegisterTimeDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode}
+          <![CDATA[ and register_time >= #{registerStartTime} and register_time < #{registerEndTime} ]]>
+        <if test="minId != null and minId >0">
+            and id > #{minId}
+        </if>
+        order by id asc limit 2000;
+    </select>
+
+    <select id="getRongShuTransferDatatikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select duplicate.*
+        from (select *, row_number() over (partition by cust_num order by insert_time desc ) as row_num
+        from b_marketing_transfer_sync_${tCid} a
+        where a.api_code = #{apiCode}
+        and a.request_data = #{requestDate}
+        ) as duplicate
+        where duplicate.row_num = 1
+        <if test="minId != null and minId >0">
+            and duplicate.id > #{minId}
+        </if>
+        order by duplicate.id asc
+        limit 20000;
+    </select>
+
+    <select id="getTransferByCustNumOrderDatatikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+    select * from (
+    select *,row_number() over(partition by cust_num order by create_time desc) as num
+    from b_marketing_transfer_sync_${tCid}
+    where
+    cust_num in
+    <foreach collection="custNums" item="c" separator="," open="(" close=")">
+        #{c}
+    </foreach>
+    ) t where num = 1
+    </select>
+    <select id="getYxTransferByApiCodeBtoCtoItikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        Select b.*
+        From (select a.id,a.cid,a.t_cid,a.api_code,a.request_id,a.org_name,a.cust_num,a.source,a.user_type,a.type,a.custom_name
+        ,a.if_register,a.register_time,a.if_login,a.login_time,a.if_apply,a.apply_dt,a.apply_time,a.apply_result
+        ,a.refuse_time,a.audit_time,a.audit_amount,a.if_lent,a.lent_time,a.lent_amount,a.unlent_amount,a.if_settle
+        ,a.settle_time,a.activity,a.case_status,a.case_effective,a.if_transform,a.transform_time,a.insert_time
+        ,a.request_time,a.request_data,a.reserve_field1,a.reserve_field2
+        ,row_number() over (partition by cust_num order by insert_time desc,id desc) as rn
+            From b_marketing_transfer_sync_${tCid} a
+            where api_code =#{apiCode}
+            and request_data = #{requestData}
+            and (json_extract(reserve_field1,"$.transformType") !='1' or json_extract(reserve_field1,"$.transformType") is null)
+           ) b
+        Where b.rn = 1
+        <if test="indexId != null and indexId!=''">
+            and b.id > #{indexId}
+        </if>
+          and b.type =#{type} order by b.id asc limit #{pageSize};
+    </select>
+    <select id="getYxTransferByApiCodeCJKtikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        Select b.*
+        From (select a.id,a.cid,a.t_cid,a.api_code,a.request_id,a.org_name,a.cust_num,a.source,a.user_type,a.type,a.custom_name
+            ,a.if_register,a.register_time,a.if_login,a.login_time,a.if_apply,a.apply_dt,a.apply_time,a.apply_result
+            ,a.refuse_time,a.audit_time,a.audit_amount,a.if_lent,a.lent_time,a.lent_amount,a.unlent_amount,a.if_settle
+            ,a.settle_time,a.activity,a.case_status,a.case_effective,a.if_transform,a.transform_time,a.insert_time
+            ,a.request_time,a.request_data,a.reserve_field1,a.reserve_field2
+            ,row_number() over(partition by cust_num order by insert_time desc,id desc) as rn
+            From b_marketing_transfer_sync_${tCid} a
+            where api_code =#{apiCode}
+            and request_data = #{requestData}
+            and (json_extract(reserve_field1,"$.transformType") !='1' or json_extract(reserve_field1,"$.transformType") is null)
+           ) b
+        Where b.rn = 1
+        <if test="indexId != null and indexId!=''">
+            and b.id > #{indexId}
+        </if>
+          and json_extract(reserve_field1,"$.registerChannel") = #{registerChannel}
+          and b.type =#{type} order by b.id asc limit #{pageSize};
+    </select>
+    <select id="getYxTransferByApiCodeAtikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select b.*
+        from (select a.id,a.cid,a.t_cid,a.api_code,a.request_id,a.org_name,a.cust_num,a.source,a.user_type,a.type,a.custom_name
+            ,a.if_register,a.register_time,a.if_login,a.login_time,a.if_apply,a.apply_dt,a.apply_time,a.apply_result
+            ,a.refuse_time,a.audit_time,a.audit_amount,a.if_lent,a.lent_time,a.lent_amount,a.unlent_amount,a.if_settle
+            ,a.settle_time,a.activity,a.case_status,a.case_effective,a.if_transform,a.transform_time,a.insert_time
+            ,a.request_time,a.request_data,a.reserve_field1,a.reserve_field2
+            ,row_number() over (partition by cust_num order by create_time desc,id desc) as rn
+            from b_marketing_transfer_sync_${tCid} a
+            where request_data = #{requestDate}
+            and api_code = #{apiCode}
+            and json_extract(reserve_field1, '$.transformType') = '1' ) as b
+        where b.rn = 1
+        <if test="indexId != null and indexId!=''">
+            and b.id > #{indexId}
+        </if>
+          and b.json_extract(reserve_field1, '$.liveType') in ('4', '6') order by b.id asc limit #{pageSize};
+    </select>
+    <select id="getYxTransferByApiCodeLtikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select b.*
+        From (select a.id,a.cid,a.t_cid,a.api_code,a.cust_num,a.reserve_field1 ,a.type,a.request_data,a.apply_result,a.apply_dt,
+        row_number() over(partition by cust_num order by insert_time desc,id desc) as rn
+        From b_marketing_transfer_sync_${tCid} a
+        where api_code =#{apiCode}
+        and request_data = #{requestDate}
+        and (json_extract(reserve_field1,"$.transformType") !='1' or json_extract(reserve_field1,"$.transformType") is null)
+        ) b
+        where b.rn = 1
+        <if test="indexId != null and indexId!=''">
+            and b.id > #{indexId}
+        </if>
+        and apply_result = '1' and apply_dt between #{applyDtStart} and #{applyDtEnd}
+        order by b.id asc limit #{pageSize};
+    </select>
+
+    <select id="getExcludeRuleFirstYxTransferByApiCodetikv_" resultType="java.lang.String">
+        select distinct cust_num
+        from b_marketing_transfer_sync_${cid}
+        where request_data = #{today}
+          and api_code = #{apiCode}
+          and (json_extract(reserve_field1, '$.transformType') != '1' or json_extract(reserve_field1,'$.transformType') is null)
+          and type != '13'
+          and cust_num in
+          <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+          </foreach>;
+    </select>
+
+    <select id="getExcludeRuleSecondYxTransferByApiCodetikv_" resultType="java.lang.String">
+        select distinct cust_num
+        from b_marketing_transfer_sync_${cid}
+        where api_code = #{apiCode}
+          and case_effective = '0'
+          and cust_num in
+          <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+          </foreach>;
+    </select>
+
+    <select id="getRuleFifthYxTransferByApiCodetikv_" resultType="java.lang.String">
+        select distinct tt1.cust_num,tt1.type from (
+        select t1.cust_num,t1.type,row_number() over(partition by cust_num,request_data order by insert_time desc) as rn
+        from b_marketing_transfer_sync_${cid} t1
+        where request_data between #{startDate} and #{endDate}
+        and (json_extract(reserve_field1, '$.transformType') != '1'
+        or json_extract(reserve_field1, '$.transformType') is null)
+        and api_code = #{apiCode}
+        and cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+        ) tt1
+        where rn = 1
+        and tt1.type != '12'
+        and length(trim(tt1.type)) > 0
+        and tt1.type is not null;
+    </select>
+
+    <select id="getYiXinMinAtoBtoCtoI" resultType="java.lang.Long">
+        select max(id)
+        from b_marketing_transfer_sync_${cid}
+                where api_code = #{apiCode}
+                  and request_data = #{requestData}
+        <if test="type != null and type != ''">
+            and type = #{type};
+        </if>
+    </select>
+    <select id="getCountByRequestId" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_transfer_sync_${cid}
+        where  request_id = #{requestId}
+    </select>
+
+
+    <select id="getXcTransferNoAdDataByOnlyConvType" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where cust_num = #{custNum}
+        and (reserve_field1->'$.convType' = '106')
+        and api_code in
+        <foreach collection="apiCodes" item="apiCode" separator="," open="(" close=")">
+            #{apiCode}
+        </foreach>
+        limit 1
+    </select>
+
+    <select id="getXcTransferNoAdDataByOnlyBlack" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where cust_num = #{custNum}
+        and (reserve_field1->'$.isBlack' = '1' or reserve_field1->'$.isBlack' = 1)
+        <![CDATA[ and create_time < curdate()]]>
+        and api_code in
+        <foreach collection="apiCodes" item="apiCode" separator="," open="(" close=")">
+            #{apiCode}
+        </foreach>
+        limit 1
+    </select>
+    <select id="getXcTransferTodayNoAdDataByOnlyBlack" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where cust_num = #{custNum}
+        and (reserve_field1->'$.isBlack' = '1' or reserve_field1->'$.isBlack' = 1)
+        <![CDATA[ and create_time > curdate()]]>
+        and api_code in
+        <foreach collection="apiCodes" item="apiCode" separator="," open="(" close=")">
+            #{apiCode}
+        </foreach>
+        limit 1
+    </select>
+    <select id="getZhongBangTransferByApiCodetikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id, cust_num, if_apply, if_lent
+        from b_marketing_transfer_sync_${tCid}
+                where api_code = #{apiCode}
+                  and request_data = #{requestDate}
+                  and (if_apply = '1' or if_lent = '1')
+        <if test="indexId != null and indexId != ''">
+            and id > #{indexId}
+        </if>
+        order by id limit 2000;
+    </select>
+
+    <select id="getZhongBangNoFirstCuShentikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id, cust_num, if_apply, if_lent
+        from b_marketing_transfer_sync_${tCid}
+                where api_code = #{apiCode}
+                  and request_data = #{requestDate}
+                  and if_apply = '1'
+                   <![CDATA[ and apply_dt >= #{lastDateStart}
+                  and apply_dt <= #{lastDateEnd}
+        ]]>
+        <if test="indexId != null and indexId != ''">
+            and id > #{indexId}
+        </if>
+        order by id limit 2000;
+    </select>
+
+    <select id="getZhongBangNoFirstCuTitikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id, cust_num, if_apply, if_lent
+        from b_marketing_transfer_sync_${tCid}
+                where api_code = #{apiCode}
+                  and request_data = #{requestDate}
+                  and if_lent = '1'
+        <![CDATA[ and lent_time >= #{lastDateStart}
+                  and lent_time <= #{lastDateEnd}
+        ]]>
+        <if test="indexId != null and indexId != ''">
+            and id > #{indexId}
+        </if>
+        order by id limit 2000;
+    </select>
+
+    <select id="countByExampleSql" parameterType="com.br.marketing.entity.MarketingTransferSyncUserExample"
+            resultType="java.lang.Integer">
+        select count(*) from b_marketing_transfer_sync_${example.tCid}
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause_1"/>
+        </if>
+        <if test="sqlWhereClause != null and sqlWhereClause !=''">
+            ${sqlWhereClause}
+        </if>
+    </select>
+
+    <select id="selectByExampleSql" resultMap="BaseResultMap"
+            parameterType="com.br.marketing.entity.MarketingTransferSyncUserExample">
+        select
+        <if test="example.distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from b_marketing_transfer_sync_${example.tCid} t2,(select id as t1_id from
+        b_marketing_transfer_sync_${example.tCid}
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause_1"/>
+        </if>
+        <if test="sqlWhereClause != null and sqlWhereClause !=''">
+            ${sqlWhereClause}
+        </if>
+        <if test="example.orderByClause != null">
+            order by ${example.orderByClause}
+        </if>) as t1 where t2.id= t1.t1_id;
+    </select>
+    <select id="getZhongYuanTransferByRequestDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where
+        <![CDATA[  register_time is not null and register_time <> '' and api_code = #{apiCode} and request_data >= #{requestStartDate} and request_data <= #{requestEndDate}]]>
+        <if test="indexId != null and indexId!=''">
+            and id > #{indexId}
+        </if>
+        order by id asc limit 1000
+    </select>
+    <select id="getZhongYuanTransferByRequestDateNoRegisterTime" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where
+        <![CDATA[ api_code = #{apiCode} and request_data >= #{requestStartDate} and request_data <= #{requestEndDate}]]>
+        <if test="indexId != null and indexId!=''">
+            and id > #{indexId}
+        </if>
+        order by id asc limit 1000
+    </select>
+    <select id="getCountIsBlackByCustNum" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_transfer_sync_${cid}
+        where  cust_num = #{custNum}
+        and  (reserve_field1->'$.isBlack' = '1' or reserve_field1->'$.isBlack' = 1)
+    </select>
+    <select id="getCountIfApplyByCustNum" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_transfer_sync_${cid}
+        where  cust_num = #{custNum}
+        and  if_apply = '1'
+        and request_data between #{dateStartStr} and #{dateEndStr}
+    </select>
+    <select id="getRegisterTimeAndLoginTimeByCreateTimeOrderDesc" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id,register_time,login_time
+        from b_marketing_transfer_sync_${cid}
+        where cust_num = #{custNum}
+        order by create_time desc limit 1
+    </select>
+
+
+    <select id="getZhongYuanTransferByPage" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="indexId != null and indexId!=''">
+                and id > #{indexId}
+            </if>
+            <if test="requestStartDate != null and requestStartDate!='' and requestEndDate !=null and requestEndDate !=''">
+                and <![CDATA[ request_data >= #{requestStartDate} and request_data <= #{requestEndDate}]]>
+            </if>
+            and ${querySql}
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getZhongYuanTransferBySql" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="requestStartDate != null and requestStartDate!='' and requestEndDate !=null and requestEndDate !=''">
+                and <![CDATA[ request_data >= #{requestStartDate} and request_data <= #{requestEndDate}]]>
+            </if>
+            <if test="custNums !=null and custNums.size() !=0">
+                and cust_num in
+                <foreach collection="custNums" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and ${querySql}
+        </where>
+    </select>
+
+    <select id="getXieChengJudgeConvType" resultType="com.br.marketing.entity.XieChengJudgeConvTypeValue">
+        select cust_num,
+               if(sum(if(reserve_field1 -> '$.convType' = '110', 1, 0)) > 0, true, false) as hasRiskControl,
+               if(sum(if(reserve_field1 -> '$.convType' = '106', 1, 0)) > 0, true, false) as hasApplySuccess,
+               if(sum(if(reserve_field1 -> '$.convType' = '107', 1, 0)) > 0, true, false) as hasInputSuccess
+        from b_marketing_transfer_sync_${tCid}
+                where api_code in
+        <foreach collection="apiCodes" item="apiCode" separator="," open="(" close=")">
+            #{apiCode}
+        </foreach>
+        <![CDATA[
+        and request_data >= #{requestStartDate}
+        and request_data <= #{requestEndDate}]]>
+        and cust_num in
+        <foreach collection="custNums" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        group by cust_num;
+    </select>
+
+    <select id="getQiFuBreakPointTransferByRequestDatetikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id, cust_num, login_time, apply_dt, request_data
+        from b_marketing_transfer_sync_${tCid}
+                where api_code = #{apiCode}
+                  and (json_extract(reserve_field1, "$.transformType") !='1' or json_extract(reserve_field1,"$.transformType") is null)
+        <![CDATA[
+                  and request_data >= #{requestStartDate}
+                  and request_data <= #{requestEndDate}
+        ]]>
+        <if test="indexId != null and indexId != ''">
+            and id > #{indexId}
+        </if>
+        order by id asc limit 2000
+    </select>
+
+    <select id="getCountByQiFuApplyDtEmply" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_transfer_sync_${tCid}
+                where api_code = #{apiCode}
+                  and (json_extract(reserve_field1, "$.transformType") !='1' or json_extract(reserve_field1,"$.transformType") is null)
+                  and
+        <foreach collection="periodRangeList" item="item" open="(" close=")" separator="or">
+            request_data between #{item.beginDateStr} and #{item.endDateStr}
+        </foreach>
+        and (apply_dt is not null and apply_dt != '')
+        and cust_num = #{custNum}
+    </select>
+
+    <select id="getTransferSyncUserByPage" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        <where>
+            <if test="apiCode != null">
+                AND api_code =#{apiCode}
+            </if>
+            <if test="indexId != null and indexId!=''">
+                and id > #{indexId}
+            </if>
+            <if test="requestStartDate != null and requestStartDate!='' and requestEndDate !=null and requestEndDate !=''">
+                and <![CDATA[ request_data >= #{requestStartDate} and request_data <= #{requestEndDate}]]>
+            </if>
+            and ${querySql}
+            order by id asc limit 2000;
+        </where>
+    </select>
+
+    <select id="getTransferSyncUserEventTypeCount" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode}
+        and json_extract(reserve_field1, "$.eventType") ='LOAN_APPLY'
+        and request_time between '${requestStartDate}' and '${requestEndDate}'
+        and user_type = #{userType}
+        and cust_num = #{custNum}
+    </select>
+
+    <select id="selectTransferSyncReportByRequestIdCount" resultType="com.br.marketing.entity.TransferSyncReport">
+        select count(*) as dataCount, user_type as userType, id
+        , max(create_time) as appletEndTime
+        , min(create_time) as appletBeginTime
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = '${apiCode}'
+        AND request_data = '${requestDate}'
+        AND request_id = '${requestId}'
+        <if test="userTypeSet != null">
+            and user_type in
+            <foreach collection="userTypeSet" open="(" close=")" separator="," item="userType">
+                '${userType}'
+            </foreach>
+        </if>
+        group by user_type
+    </select>
+
+    <select id="getYxTransferByRequestDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select *
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode}
+        and request_data = #{requestDate}
+        <if test="extendSql != null and extendSql != ''">
+            ${extendSql}
+        </if>
+        <if test="indexId != null and indexId != ''">
+            and id > #{indexId}
+        </if>
+        order by id asc limit #{pageSize}
+    </select>
+
+    <select id="getYxCustNumsByRequestDate" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id, cust_num
+        from b_marketing_transfer_sync_${tCid}
+        where api_code = #{apiCode}
+        and request_data = #{requestDate}
+        <if test="extendSql != null and extendSql != ''">
+            ${extendSql}
+        </if>
+        <if test="indexId != null and indexId != ''">
+            and id > #{indexId}
+        </if>
+        order by id asc limit #{pageSize}
+    </select>
+
+    <select id="selectFullTransferWithValid" resultType="java.util.Map">
+        select transfer.id as id,
+               transfer.cust_num as custNum,
+               transfer.apply_dt as applyDt ,
+               transfer.apply_result as applyResult,
+               transfer.login_time as loginTime,
+               transfer.request_time as requestTime,
+               transfer.user_type as userType,
+               sync.cus_batch as taskId,
+               sync.reserve_field1 as reserveField1,
+               transfer.reserve_field1 as transferReserveField1
+        from
+            (select id,
+                   cust_num,
+                   apply_dt,
+                   apply_result,
+                   login_time,
+                   request_time,
+                   user_type,
+                   reserve_field1
+            from b_marketing_transfer_sync_${transferSyncUser.tCid}
+            where api_code = #{transferSyncUser.apiCode}
+                <if test="transferSyncUser.id != null and transferSyncUser.id > 0">
+                    AND id >= #{transferSyncUser.id}
+                </if>
+            order by id asc limit 2000) transfer
+            left join b_marketing_sync_${transferSyncUser.apiCode} sync
+                on transfer.cust_num = sync.cust_num and transfer.user_type = sync.user_type
+    </select>
+
+    <select id="selectTransferWithValid" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select id, cust_num, apply_dt, apply_result, login_time, request_time, user_type, reserve_field1
+        from b_marketing_transfer_sync_${transferSyncUser.tCid}
+        where
+        <if test="transferSyncUser.apiCode != null and transferSyncUser.apiCode.trim() neq ''">
+            api_code=#{transferSyncUser.apiCode}
+        </if>
+        <![CDATA[ and request_data >= #{startDate}  and  request_data <= #{endDate} ]]>
+        <if test="transferSyncUser.id != null and transferSyncUser.id > 0">
+            AND id >= #{transferSyncUser.id}
+        </if>
+        order by id asc limit 2000
+    </select>
+
+    <select id="selectTransferWithValidtiflash_" resultType="java.util.Map">
+        select transfer.id as id,
+               transfer.cust_num as custNum,
+               transfer.apply_dt as applyDt ,
+               transfer.apply_result as applyResult,
+               transfer.login_time as loginTime,
+               transfer.request_time as requestTime,
+               transfer.user_type as userType,
+               transfer.reserve_field1 as reserveField1,
+               sync.cus_batch as taskId,
+               config.valid_end_date as expireDate,
+               config.valid_start_date as effectiveDate
+        from b_marketing_transfer_sync_${transferSyncUser.tCid} transfer
+            inner join b_marketing_sync_${transferSyncUser.apiCode} sync
+                on transfer.cust_num = sync.cust_num
+            inner join b_marketing_customize_data_valid_config config
+                on sync.user_type = config.user_type
+                and sync.cus_batch = config.task_id
+                and sync.applet_date = config.applet_date
+        where
+            <if test="transferSyncUser.id != null and transferSyncUser.id > 0">
+                transfer.id >= #{transferSyncUser.id} and
+            </if>
+            transfer.api_code = #{transferSyncUser.apiCode}
+            and <![CDATA[config.valid_start_date <= #{transferSyncUser.requestData}
+            and config.valid_end_date >= #{transferSyncUser.requestData}]]>
+        order by id asc limit #{pageSize}
+    </select>
+
+    <select id="selectTransferByWbxc" resultType="java.util.Map">
+        select id as id,
+               cust_num as custNum,
+               user_type as userType,
+               login_time as loginTime,
+               apply_dt as applyDt ,
+               apply_result as applyResult,
+               audit_time as auditTime,
+               lent_time as lentTime,
+               lent_amount as lentAmount,
+               reserve_field1 as reserveField1
+        from b_marketing_transfer_sync_${transferSyncUser.tCid} transfer
+        where
+        <if test="transferSyncUser.id != null and transferSyncUser.id > 0">
+            id >= #{transferSyncUser.id} and
+        </if>
+            transfer.api_code = #{transferSyncUser.apiCode}
+        order by id asc limit #{pageSize}
+    </select>
+
+
+    <select id="selectByExampleAndMaxIdList" resultMap="BaseResultMap"
+            parameterType="com.br.marketing.entity.MarketingTransferSyncUserExample">
+        select
+        <if test="example.distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from b_marketing_transfer_sync_${example.tCid}
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause_1"/>
+        </if>
+        <if test="maxId != null and maxId>0">
+            and id>${maxId}
+        </if>
+        <choose>
+            <when test="example.orderByClause != null">
+                order by id,'${orderByClause}'
+            </when>
+            <otherwise>
+                order by id
+            </otherwise>
+        </choose>
+        <if test="limit>0">
+            limit ${limit}
+        </if>
+    </select>
+
+    <select id="selectTransferWithValidByCelltiflash_" resultType="java.util.Map">
+        select transfer.id as id,
+               transfer.cust_num as custNum,
+               transfer.apply_dt as applyDt ,
+               transfer.apply_result as applyResult,
+               transfer.login_time as loginTime,
+               transfer.request_time as requestTime,
+               transfer.user_type as userType,
+               transfer.reserve_field1 as reserveField1,
+               sync.cus_batch as taskId,
+               config.valid_end_date as expireDate,
+               config.valid_start_date as effectiveDate
+        from b_marketing_transfer_sync_${transferSyncUser.tCid} transfer
+            inner join b_marketing_sync_${transferSyncUser.apiCode} sync
+                on transfer.cust_num = sync.cell_md5
+            inner join b_marketing_customize_data_valid_config config
+                on sync.user_type = config.user_type
+                and sync.cus_batch = config.task_id
+                and sync.applet_date = config.applet_date
+        where
+        <if test="transferSyncUser.id != null and transferSyncUser.id > 0">
+            transfer.id >= #{transferSyncUser.id} and
+        </if>
+        transfer.api_code = #{transferSyncUser.apiCode}
+        and <![CDATA[config.valid_start_date <= #{transferSyncUser.requestData}
+        and config.valid_end_date >= #{transferSyncUser.requestData}]]>
+        order by id asc limit #{pageSize}
+    </select>
+
+
+    <select id="getTransferCustNumByConditiontikv_" resultType="java.lang.String">
+        select distinct cust_num
+        from b_marketing_transfer_sync_${tCid}
+        <where>
+            api_code = #{apiCode}
+            and cust_num in
+            <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+                #{custNum}
+            </foreach>
+            <if test="requestStartDate != null and requestStartDate!='' and requestEndDate !=null and requestEndDate !=''">
+                and <![CDATA[ request_data >= #{requestStartDate} and request_data <= #{requestEndDate}]]>
+            </if>
+            <if test="userType != null">
+                AND user_type =#{userType}
+            </if>
+            and ${querySql}
+        </where>
+    </select>
+
+    <select id="maxId" resultType="java.lang.Long">
+        SELECT
+        max(id) as id
+        FROM
+        b_marketing_transfer_sync_${tCid}
+        where
+        <if test="apiCode != null and apiCode.trim() neq ''">
+            api_code=#{apiCode} and
+        </if>
+        request_data = #{requestDate}
+    </select>
+
+    <select id="minId" resultType="java.lang.Long">
+        SELECT
+        min(id) as id
+        FROM
+        b_marketing_transfer_sync_${tCid}
+        where
+        <if test="apiCode != null and apiCode.trim() neq ''">
+            api_code=#{apiCode} and
+        </if>
+        request_data = #{requestDate}
+    </select>
+
+    <select id="getMaxIdByTime" resultType="java.lang.Long">
+        SELECT
+        max(id) as id
+        FROM
+        b_marketing_transfer_sync_${tCid}
+        where
+        <if test="apiCode != null and apiCode.trim() neq ''">
+            api_code=#{apiCode} and
+        </if>
+        <![CDATA[ request_data >= #{startDate} and request_data <= #{endDate} ]]>
+
+    </select>
+
+    <select id="getMinIdByTime" resultType="java.lang.Long">
+        SELECT
+        min(id) as id
+        FROM
+        b_marketing_transfer_sync_${tCid}
+        where
+        <if test="apiCode != null and apiCode.trim() neq ''">
+            api_code=#{apiCode} and
+        </if>
+        <![CDATA[ request_data >= #{startDate} and request_data <= #{endDate} ]]>
+    </select>
+
+    <select id="getTransferBySyncUser" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from b_marketing_transfer_sync_${transferSyncUser.tCid}
+        where
+            <if test="transferSyncUser.apiCode != null and transferSyncUser.apiCode.trim() neq ''">
+                api_code=#{transferSyncUser.apiCode}
+            </if>
+            <if test="transferSyncUser.requestData != null and transferSyncUser.requestData.trim() neq ''">
+                AND request_data=#{transferSyncUser.requestData}
+            </if>
+        <![CDATA[ and id >= #{beginId} and id < #{endId} ]]>
+        order by id
+    </select>
+
+    <select id="getTransferBySyncUserAndTime" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select * from b_marketing_transfer_sync_${transferSyncUser.tCid}
+        where
+            <if test="transferSyncUser.apiCode != null and transferSyncUser.apiCode.trim() neq ''">
+                api_code=#{transferSyncUser.apiCode}
+            </if>
+        <![CDATA[ and request_data >= #{startDate} and request_data <= #{endDate} ]]>
+        <![CDATA[ and id >= #{beginId} and id < #{endId} ]]>
+        order by id
+    </select>
+
+    <select id="getYXMarketingTransferByLiveTypetikv_" resultType="com.br.marketing.entity.MarketingTransferSyncUser">
+        select b.*
+        from (select a.id,a.cid,a.t_cid,a.api_code,a.request_id,a.org_name,a.cust_num,a.source,a.user_type,a.type,a.custom_name
+        ,a.if_register,a.register_time,a.if_login,a.login_time,a.if_apply,a.apply_dt,a.apply_time,a.apply_result
+        ,a.refuse_time,a.audit_time,a.audit_amount,a.if_lent,a.lent_time,a.lent_amount,a.unlent_amount,a.if_settle
+        ,a.settle_time,a.activity,a.case_status,a.case_effective,a.if_transform,a.transform_time,a.insert_time
+        ,a.request_time,a.request_data,a.reserve_field1,a.reserve_field2
+        ,row_number() over (partition by cust_num order by create_time desc,id desc) as rn
+        from b_marketing_transfer_sync_${tCid} a
+        where request_data = #{requestDate}
+        and api_code = #{apiCode}
+        and json_extract(reserve_field1, '$.transformType') = '1' ) as b
+        where b.rn = 1
+        <if test="indexId != null and indexId!=''">
+            and b.id > #{indexId}
+        </if>
+        and b.json_extract(reserve_field1, '$.liveType')= #{liveType} order by b.id asc limit #{pageSize};
+    </select>
+
+    <!-- 自动化巡检：转化场景 - 前一天08:00快照（单表：按 api_code 取最新一条）。 -->
+    <select id="getLastDay8DataByCidAndApiCode" resultType="com.br.marketing.dto.autocheck.CheckTransferSyncDataDto">
+        select
+            id,
+            cid,
+            t_cid as tCid,
+            api_code as apiCode,
+            org_name as orgName,
+            cust_num as custNum,
+            source,
+            user_type as userType,
+            type,
+            custom_name as customName,
+            if_register as ifRegister,
+            if_login as ifLogin,
+            if_apply as ifApply,
+            apply_result as applyResult,
+            audit_amount as auditAmount,
+            if_lent as ifLent,
+            lent_amount as lentAmount,
+            unlent_amount as unlentAmount,
+            if_settle as ifSettle,
+            activity,
+            case_status as caseStatus,
+            case_effective as caseEffective,
+            if_transform as ifTransform,
+            reserve_field1 as reserveField1,
+            reserve_field2 as reserveField2,
+            fingerprint,
+            DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as snapTime
+        from b_marketing_transfer_sync_${cid}
+        where api_code = #{apiCode}
+          and create_time <![CDATA[>=]]> DATE_ADD(DATE_SUB(CURDATE(), INTERVAL 1 DAY), INTERVAL 8 HOUR)
+          and create_time <![CDATA[<]]> DATE_ADD(
+              DATE_ADD(DATE_SUB(CURDATE(), INTERVAL 1 DAY), INTERVAL 8 HOUR),
+              INTERVAL 5 MINUTE
+          )
+        order by create_time desc, id desc
+        limit 1
+    </select>
+
+    <!-- 自动化巡检：转化场景 - 最新快照（单表：按 api_code 取最新一条）。 -->
+    <select id="getLatestDataByCidAndApiCode" resultType="com.br.marketing.dto.autocheck.CheckTransferSyncDataDto">
+        select
+            id,
+            cid,
+            t_cid as tCid,
+            api_code as apiCode,
+            org_name as orgName,
+            cust_num as custNum,
+            source,
+            user_type as userType,
+            type,
+            custom_name as customName,
+            if_register as ifRegister,
+            if_login as ifLogin,
+            if_apply as ifApply,
+            apply_result as applyResult,
+            audit_amount as auditAmount,
+            if_lent as ifLent,
+            lent_amount as lentAmount,
+            unlent_amount as unlentAmount,
+            if_settle as ifSettle,
+            activity,
+            case_status as caseStatus,
+            case_effective as caseEffective,
+            if_transform as ifTransform,
+            reserve_field1 as reserveField1,
+            reserve_field2 as reserveField2,
+            fingerprint,
+            DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as snapTime
+        from b_marketing_transfer_sync_${cid}
+        where api_code = #{apiCode}
+          and create_time <![CDATA[>=]]> CURDATE()
+          and create_time <![CDATA[<]]> DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        order by create_time desc, id desc
+        limit 1
+    </select>
+</mapper>

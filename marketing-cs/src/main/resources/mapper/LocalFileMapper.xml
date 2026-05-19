@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.LocalFileMapper" >
+    <insert id="insertFileData">
+        ${insertSql}
+    </insert>
+
+    <select id="selectList" resultType="com.br.marketing.vo.LocalFileVo">
+        select bf.id,
+        bf.api_code,
+        bf.file_type,
+        bf.file_name,
+        bf.status,
+        bf.complete,
+        bf.actual_number,
+        bf.create_time,
+        bf.error_actual_number,
+        bf.push_start_time,
+        bf.push_end_time,
+        bf.push_number,
+        bc.short_name,
+        bc.cid from b_local_file bf inner join b_marketing_customer bc on bc.api_code = bf.api_code
+        where bf.file_type in
+        ('qiqi','xiecheng','yiqianbao','dianxiao','halo','haier','zhongan','xiechengsms','marketingData','dx_transform','didi',
+         'xiechengsmscollidingvt','zhongbang_caifu','zhongbanglabel','haierColliding','tongcheng_operation_pushToCustomer',
+         'tongcheng_undo_pushToCustomer','dewucollidingdata','zhongbang_voice','wuba_colliding','xiecheng_cps_colliding')
+        <if test="search !=null and search!=''">
+            and (
+            bc.cid like concat("%", #{search},"%")
+            or bc.short_name like concat("%", #{search},"%"))
+        </if>
+        <if test="apiCode !=null and apiCode!=''">
+            <![CDATA[  and bc.api_code =#{apiCode} ]]>
+        </if>
+        <if test="uploadStartTime !=null and uploadStartTime!=''">
+            <![CDATA[  and bf.create_time >=#{uploadStartTime} ]]>
+        </if>
+        <if test="uploadEndTime !=null and uploadEndTime!=''">
+            <![CDATA[  and bf.create_time <#{uploadEndTime} ]]>
+        </if>
+
+        <if test="fileType!=null and fileType !='' ">
+            and bf.file_type in (${fileType})
+        </if>
+
+        order by bf.create_time desc
+    </select>
+    <select id="allCount" resultType="java.lang.Long">
+        select sum(bf.actual_number),bf.api_code from b_local_file bf left join b_marketing_customer bc on bc.api_code =
+        bf.api_code
+        where bf.file_type in
+        ('qiqi','xiecheng','yiqianbao','dianxiao','halo','haier','zhongan','xiechengsms','marketingData','dx_transform','didi',
+         'xiechengsmscollidingvt','zhongbang_caifu','zhongbanglabel','haierColliding','tongcheng_operation_pushToCustomer',
+         'tongcheng_undo_pushToCustomer','dewucollidingdata','zhongbang_voice','wuba_colliding','xiecheng_cps_colliding')
+        <if test="search !=null and search!=''">
+            and (
+            bc.cid like concat("%", #{search},"%")
+            or bc.short_name like concat("%", #{search},"%"))
+        </if>
+        <if test="apiCode !=null and apiCode!=''">
+            <![CDATA[  and bc.api_code =#{apiCode} ]]>
+        </if>
+        <if test="uploadStartTime !=null and uploadStartTime!=''">
+            <![CDATA[  and bf.create_time >=#{uploadStartTime} ]]>
+        </if>
+        <if test="uploadEndTime !=null and uploadEndTime!=''">
+            <![CDATA[  and bf.create_time <#{uploadEndTime} ]]>
+        </if>
+
+        <if test="fileType!=null and fileType !='' ">
+            and bf.file_type in (${fileType})
+        </if>
+    </select>
+
+    <update id="updateUploadStartTimeById">
+        update b_local_file set push_start_time = #{date,jdbcType=TIMESTAMP}
+        where id in
+        <foreach collection="ids" item="id" separator="," close=")" open="(">
+            #{id}
+        </foreach>
+        and push_start_time is null
+    </update>
+
+    <select id="getByPrimaryKey" resultType="com.br.marketing.entity.LocalFile">
+        select *
+        from b_local_file
+        where id = #{id}
+    </select>
+    <select id="getLocalFileByPushNoOrError" resultType="com.br.marketing.entity.LocalFile">
+        select *
+        from b_local_file
+        where api_code = #{apiCode}
+        and file_type = #{fileType}
+        and status = 2 and (push_status is null or push_status = '3')
+        order by create_time asc
+    </select>
+
+    <select id="getNotPushLocalFileByFileTypeAndFileName" resultMap="BaseResultMap">
+        select *
+        FROM b_local_file
+        WHERE file_type = #{fileType,jdbcType=VARCHAR}
+          AND file_name like #{fileName,jdbcType=VARCHAR}
+          AND status = '2'
+          AND (push_status != '2' or push_status is null)
+        order by create_time
+    </select>
+
+    <update id="updatePushNumber" parameterType="com.br.marketing.entity.LocalFile">
+        update b_local_file
+        set error_actual_number = #{localFile.errorActualNumber,jdbcType=INTEGER},
+            push_number = #{localFile.pushNumber,jdbcType=INTEGER},
+            push_end_time = #{localFile.pushEndTime,jdbcType=TIMESTAMP}
+        where id = #{localFile.id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updatePushStatusByLocalId">
+        update b_local_file set push_status = null where id in ${highValueIds};
+    </update>
+
+    <select id="getLastDataByApiCode" resultMap="BaseResultMap">
+        SELECT *
+        FROM b_local_file
+        WHERE
+            api_code = #{apiCode}
+            AND status = '2'
+            <if test="startTime !=null">
+                <![CDATA[ AND create_time >=#{startTime} ]]>
+            </if>
+            <if test="endTime !=null">
+                <![CDATA[ AND create_time <= #{endTime} ]]>
+            </if>
+    </select>
+
+    <update id="updatePushEndTimeById">
+        update b_local_file
+        set push_end_time = #{date,jdbcType=TIMESTAMP},
+            push_number   = #{pushNumber,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
+</mapper>

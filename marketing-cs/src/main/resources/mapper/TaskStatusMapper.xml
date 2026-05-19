@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.TaskStatusMapper">
+	<insert id="insertTaskStatus" parameterType="com.br.marketing.entity.TaskStatus">
+			INSERT INTO  b_task_status (
+			`api_code`,
+			`batch_number`,
+			`create_time`,
+			`update_time`,
+			`all_status`,
+			`incr_date`,
+			incr_status,
+			once_status,
+			file_id
+			)
+			VALUES (
+			#{apiCode},
+			#{batchNumber},
+			now(),
+			now(),
+			#{allStatus},
+			#{incrDate},
+			#{incrStatus},
+			#{onceStatus},
+			#{fileId}
+			)
+	</insert>
+	<select id="queryOnceBts" parameterType="java.lang.String" resultType="com.br.marketing.entity.TaskStatus">
+		SELECT
+		api_code,batch_number,once_status,create_time,update_time,incr_date,incr_status
+		 FROM
+		 b_task_status
+		 WHERE
+		 batch_number=#{batchNumber}
+	</select>
+
+</mapper>

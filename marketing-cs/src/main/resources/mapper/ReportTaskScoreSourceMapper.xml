@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.ReportTaskScoreSourceMapper" >
+
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO b_report_task_score_source (
+            report_id,
+            cid,
+            api_code,
+            batch_number,
+            create_time,
+            update_time
+        )values
+        <foreach collection="list" item="data" separator=",">
+            (#{data.reportId,jdbcType=VARCHAR},
+            #{data.cid,jdbcType=VARCHAR},
+            #{data.apiCode,jdbcType=VARCHAR},
+            #{data.batchNumber,jdbcType=VARCHAR},
+            #{data.createTime,jdbcType=TIMESTAMP},
+            #{data.updateTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectReportIdByBatchNumberstikv_" resultType="java.util.Map">
+        select t1.report_id as reportId,
+               count(0) count
+        from b_report_task_score_source t1 inner join
+            (select report_id,
+                    count(0) as count
+            from b_report_task_score_source
+            where batch_number in
+            <foreach collection="batchNumbers" item="batchNumber" open="(" separator="," close=")">
+                #{batchNumber}
+            </foreach>
+            group by report_id
+            ) t2
+        on t1.report_id = t2.report_id
+        where t2.count = #{size}
+        group by t1.report_id having count = #{size};
+    </select>
+
+</mapper>

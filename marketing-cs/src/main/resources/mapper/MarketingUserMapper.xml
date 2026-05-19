@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.MarketingUserMapper">
+	<update id="createUserTable" parameterType="java.lang.String">
+		CREATE TABLE
+		IF NOT EXISTS ${tableName} (
+			`id` bigint (20) NOT NULL AUTO_INCREMENT,
+			`api_code` VARCHAR (10) NOT NULL COMMENT '商户编号',
+			`batch_number` VARCHAR (100) NOT NULL COMMENT '批次号',
+			`cus_num` VARCHAR (128) DEFAULT NULL,
+			`id_card` VARCHAR (266) DEFAULT NULL COMMENT '身份证号',
+			`name` VARCHAR (255) DEFAULT NULL COMMENT '姓名',
+			`cell` VARCHAR (255) DEFAULT NULL COMMENT '电话',
+			`linkman_cell` VARCHAR (255) DEFAULT NULL COMMENT '联系人电话，支持加密',
+			`home_addr` VARCHAR (65) DEFAULT NULL COMMENT '家庭地址',
+			`tel_home` VARCHAR (20) DEFAULT NULL COMMENT '家庭座机号',
+			`mail` VARCHAR (30) DEFAULT NULL COMMENT '邮箱',
+			`create_time` datetime DEFAULT NULL,
+			`update_time` datetime DEFAULT NULL,
+			`time_range` INT (11) DEFAULT NULL COMMENT '时间范围。取值：0-5，单位：年；填入相应数字表示查询最近几年的特殊名单服务，未填或填入其它数字表示默认查询所有时间段的标签。',
+			`pass_date` VARCHAR (100) DEFAULT NULL COMMENT '审批通过日期',
+			`approval_result` VARCHAR (50) DEFAULT NULL COMMENT '贷前审批结果',
+			`loanMaturity_date` VARCHAR (100) DEFAULT NULL COMMENT '贷款到期日期',
+			`user_date` VARCHAR (50) DEFAULT NULL COMMENT '观察日期',
+			`decodeFailType` VARCHAR (50) DEFAULT NULL COMMENT '解密失败类型 MD5、Sha256、SM3',
+			`status` INT (10) DEFAULT '1' COMMENT '预留剔除状态字段 1：正常，2：剔除',
+			`extend_json` varchar(1000) null comment '扩展信息字段',
+			`task_id` varchar(100) DEFAULT NULL COMMENT '客户批次号',
+			`user_type` varchar(255) DEFAULT NULL COMMENT '新场景-替代group_type',
+			PRIMARY KEY (`id`),
+			KEY `index_api_code` (`api_code`, `batch_number`) USING BTREE,
+			KEY `index_create_time` (`create_time`) USING BTREE,
+			KEY `index_cus_num` (`cus_num`) USING HASH
+		) ENGINE = INNODB DEFAULT CHARSET = utf8
+	</update>
+	<insert id="insertUser" parameterType="com.br.marketing.entity.MarketingUser">
+		    INSERT INTO b_marketing_user (
+        	`api_code`,
+        	`batch_number`,
+        	`cus_num`,
+        	`id_card`,
+        	`name`,
+        	`cell`,
+        	`linkman_cell`,
+        	`home_addr`,
+        	`tel_home`,
+        	`mail`,
+        	`create_time`,
+        	`update_time`,
+        	`time_range`,
+        	`pass_date`,
+        	`approval_result`,
+        	`loanMaturity_date`,
+        	`decodeFailType`)
+        VALUES
+        	(
+        	    #{apiCode},
+        		#{batchNumber},
+        		#{cusNum},
+        		#{idCard},
+        		#{name},
+        		#{cell},
+        		#{linkmanCell},
+        		#{homeAddr},
+        		#{telHome},
+        		#{mail},
+        		now(),
+        		now(),
+        		#{timeRange},
+        		#{passDate},
+        		#{approvalResult},
+        		#{loanMaturityDate},
+        		#{decodeFailType}
+        	)
+	</insert>
+	<select id="queryPpd" parameterType="map" resultType="com.br.marketing.entity.MarketingUser">
+		select batch_number,cus_num,id_card,`name`,cell from b_marketing_user_ppd_tmp where id_card=#{id} and cell=#{cell} and name=#{name}
+	</select>
+	<select id="queryHnnxUserByid" parameterType="com.br.marketing.entity.MarketingTask" resultType="com.br.marketing.entity.MarketingUser">
+		SELECT
+		*
+		FROM
+		${tableName}
+		WHERE
+		id &gt;= #{begin}
+		AND id &lt; #{end}
+		AND api_code = #{apiCode}
+	</select>
+	<select id="queryUserByid" parameterType="com.br.marketing.entity.MarketingTask" resultType="com.br.marketing.entity.MarketingUser">
+		SELECT
+		*
+		FROM
+		${tableName}
+		WHERE
+		id &gt; #{begin}
+		AND api_code = #{apiCode}
+		AND batch_number = #{batchNumber}
+		order by id asc limit 5000;
+	</select>
+	<select id="queryHnnxMaxId" parameterType="com.br.marketing.entity.MarketingTask" resultType="java.lang.Integer">
+		SELECT
+		id
+		FROM
+		${tableName}
+		WHERE
+		api_code = #{apiCode}
+		ORDER BY
+		id DESC
+		LIMIT 1;
+	</select>
+	<select id="queryMaxId" parameterType="com.br.marketing.entity.MarketingTask" resultType="java.lang.Long">
+		SELECT
+		id
+		FROM
+		${tableName}
+		WHERE
+		api_code = #{apiCode}
+		AND batch_number = #{batchNumber}
+		<if test="tableName=='b_marketing_user_chg'">
+			AND 	hit_date=#{hitDate}
+		</if>
+		ORDER BY
+		id DESC
+		LIMIT 1;
+	</select>
+	<select id="queryHnnxMinId" parameterType="com.br.marketing.entity.MarketingTask" resultType="java.lang.Integer">
+		SELECT
+		id
+		FROM
+		${tableName}
+		WHERE
+		api_code = #{apiCode}
+		ORDER BY
+		id ASC
+		LIMIT 1;
+	</select>
+	<select id="queryMinId" parameterType="com.br.marketing.entity.MarketingTask" resultType="java.lang.Long">
+		SELECT
+			id
+		FROM
+			${tableName}
+		WHERE
+			api_code = #{apiCode}
+		AND batch_number = #{batchNumber}
+		<if test="tableName=='b_marketing_user_chg'">
+			AND 	hit_date=#{hitDate}
+		</if>
+		ORDER BY
+			id ASC
+		LIMIT 1;
+	</select>
+	<insert id="insertDirtyuser" parameterType="java.util.List">
+		INSERT INTO b_marketing_dirty_user (`api_code`,`batch_number`,`cus_num`,`id_card`,`name`,	`cell`,	`create_time`)VALUES<foreach collection="list" item="item" index="index" separator=",">
+(#{item.api_code,jdbcType=VARCHAR},#{item.batch_number,jdbcType=VARCHAR},#{item.cus_num,jdbcType=VARCHAR},#{item.id_card,jdbcType=VARCHAR},#{item.name,jdbcType=VARCHAR},#{item.cell,jdbcType=VARCHAR},now())
+		</foreach>
+	</insert>
+	<select id="queryUserByCusNum" parameterType="map" resultType="com.br.marketing.entity.MarketingUser">
+		SELECT
+		api_code,batch_number,cus_num,id_card,name,cell
+		FROM
+		b_marketing_user
+		WHERE
+		api_code=#{api_code}
+		AND
+		batch_number=#{batch_number}
+		AND
+		cus_num=#{cus_num}
+	</select>
+    <select id="queryUser" parameterType="com.br.marketing.entity.MarketingTask" resultType="com.br.marketing.entity.MarketingUser">
+         SELECT
+	     *
+         FROM
+         	${table_name}
+         WHERE
+         	api_code = #{api_code}
+         AND batch_number = #{batch_number}
+         <if test="table_name=='b_marketing_user_chg'">
+		  AND 	hit_date=#{hit_date}
+		 </if>
+         LIMIT #{begin},#{end}
+    </select>
+    <select id="getTotalNumForAll" parameterType="java.util.List" resultType="java.lang.Integer">
+        SELECT
+        count(*) AS num
+        FROM
+        b_marketing_user
+        WHERE
+        	batch_number in
+        <foreach collection="list" separator="," index="index" item="blt" open="(" close=")">
+            #{blt.batch_number}
+        </foreach>
+    </select>
+    <select id="getTotalNum" parameterType="java.util.List" resultType="java.lang.Integer">
+        SELECT
+        	count(*) AS num
+        FROM
+        	b_marketing_user_chg
+        WHERE
+        	batch_number in
+        <foreach collection="list" separator="," index="index" item="blt" open="(" close=")">
+            #{blt.batch_number}
+        </foreach>
+		AND
+		DATE_FORMAT(hit_date,'%Y-%m-%d')=DATE_SUB(curdate(),INTERVAL 1 DAY)
+    </select>
+    <select id="queryCount" parameterType="com.br.marketing.entity.MarketingTask" resultType="java.lang.Integer">
+        SELECT
+    	count(*) AS num
+        FROM
+        	${tableName}
+        WHERE
+        	api_code = #{apiCode} and
+        	batch_number = #{batchNumber}
+		<if test="tableName=='b_marketing_user_chg'">
+			AND  hit_date=#{hitDate}
+		</if>
+			AND status=1
+    </select>
+	<select id="queryCountForFreq" resultType="java.lang.Integer">
+		SELECT
+		count(*) AS num
+		FROM
+		b_marketing_user_chg
+		WHERE
+		api_code = #{api_code} and
+		batch_number = #{batch_number}
+		AND  hit_date &gt;= #{hit_date}
+	</select>
+	<select id="selectGroupByCodeAndTime" resultType="com.br.marketing.vo.CustGroupTempVO">
+		select cus_batch as cusBatch, group_type as groupType
+		from b_marketing_sync_${apiCode}
+		where applet_date = #{beginTime}
+		group by cus_batch,group_type
+	</select>
+	<select id="selectGroupByCodeAndCusAndTime" resultType="java.lang.String">
+		select group_type as groupType
+		from b_marketing_sync_${apiCode}
+		where cus_batch = #{cusBatch} and applet_date = #{beginTime}
+		group by group_type
+	</select>
+	<select id="selectCusBatchByCodeAndTime" resultType="java.lang.String">
+		select cus_batch
+		from b_marketing_sync_info
+		where api_code = #{api_code}
+	  <![CDATA[ and create_time>= #{beginTime} and create_time < #{endTime}]]>
+		group by cus_batch
+	</select>
+	<select id="countByPreUser" resultType="java.lang.Integer">
+		select count(1)
+		from  b_marketing_sync_${apiCode}
+		where cus_batch = #{cusBatch}
+		and group_type = #{groupType}
+		and applet_date= #{appletDate}
+	</select>
+	<select id="countBySureUser" resultType="java.lang.Integer">
+		select count(1)
+		from  b_marketing_user_${apiCode}
+		where batch_number = #{batchNumber}
+	</select>
+	<select id="selectSyncUser" resultType="com.br.marketing.entity.MarketingSyncUser">
+		select *
+		from b_marketing_sync_${apiCode}
+		where request_batch = #{requestId}
+	</select>
+	<select id="selectSyncUserByCustNum" resultType="com.br.marketing.entity.MarketingSyncUser">
+		select *
+		from b_marketing_sync_${apiCode}
+		where status = 1
+		<if test="custNum != null and custNum != ''">
+			and cust_num = #{custNum}
+		</if>
+		<if test="cell != null and cell != ''">
+			and cell = #{cell}
+		</if>
+		order by applet_time desc limit 1
+    </select>
+    <insert id="insertLoanUser" parameterType="map">
+		INSERT INTO b_marketing_user (`api_code`,
+									  `batch_number`,
+									  `cus_num`,
+									  `id_card`,
+									  `name`,
+									  `cell`,
+									  `linkman_cell`,
+									  `home_addr`,
+									  `tel_home`,
+        	`mail`,
+        	`create_time`,
+        	`update_time`,
+        	`time_range`,
+        	`pass_date`,
+        	`approval_result`,
+        	`loanMaturity_date`)
+        VALUES
+        	(
+        	    #{api_code},
+        		#{batch_number},
+        		#{cus_num},
+        		#{id_card},
+        		#{name},
+        		#{cell},
+        		#{linkman_cell},
+        		#{home_addr},
+        		#{tel_home},
+        		#{mail},
+        		now(),
+        		now(),
+        		#{time_range},
+        		#{pass_date},
+        		#{approval_result},
+        		now()
+        	)
+    </insert>
+    <insert id="insertBatchMarketingPreUser">
+		INSERT INTO b_marketing_sync_${apiCode} (
+			`api_code`,
+			`cus_batch`,
+		    `cust_num`,
+			`cell`,
+			`group_type`,
+			`register_date`,
+			`reserve_field1`,
+			`reserve_field2`,
+			`create_time`,
+			`update_time`
+		)
+		VALUES
+		       <foreach collection="dataItems" separator="," item="data">
+		(
+			#{apiCode},#{tasdId},#{data.custNum},#{data.cell},#{data.groupType}
+			<if test="data.registerDate != null">
+			,#{data.registerDate}
+			</if>
+		   	<if test="data.registerDate == null">
+			   ,''
+		   	</if>
+		   <if test="data.reserveField1 != null">
+			   ,#{data.reserveField1}
+		   </if>
+		   <if test="data.reserveField1 == null">
+			   ,''
+		   </if>
+		   <if test="data.reserveField2 != null">
+			   ,#{data.reserveField2}
+		   </if>
+		   <if test="data.reserveField2 == null">
+			   ,''
+		   </if>
+			,#{dateTime}
+			,#{dateTime}
+		)
+		</foreach>
+	</insert>
+	<insert id="insertBatchMarketingPreUserByDatas">
+		INSERT INTO b_marketing_sync_${apiCode} (
+			`api_code`,
+			`cus_batch`,
+		    `request_batch`,
+			`cust_num`,
+			`cell`,
+		    `id_card`,
+		    `name`,
+			`group_type`,
+			`user_type`,
+			`register_date`,
+			`reserve_field1`,
+			`reserve_field2`,
+			`create_time`,
+			`update_time`,
+			`applet_date`,
+			`applet_time`,
+			`fail_type`,
+			`status`
+		)
+		VALUES ${datas}
+	</insert>
+	<insert id="insertMarketingPreUserByText" parameterType="com.br.marketing.entity.MarketingSyncInfo">
+		<selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO `b_marketing_sync_info` (`api_code`, `cus_batch`, `request_batch`,
+		`last`, `total`, `json_data`, `create_time`, `actual_num`,data_source_type)
+		VALUES (#{apiCode}, #{cusBatch}, #{requestBatch}, #{last}, #{total}, #{jsonData},#{createTime},#{actualNum},#{dataSourceType});
+	</insert>
+	<insert id="insertByRequestId" parameterType="java.lang.String">
+		insert into
+		b_marketing_user_${apiCode}
+		(api_code,batch_number,cus_num,cell,id_card,name,create_time,update_time,decodeFailType,status,extend_json,task_id,user_type)
+		values ${valuesStr}
+	</insert>
+	<update id="createMarketingPreUserTable" parameterType="java.lang.String">
+
+		CREATE TABLE
+			IF NOT EXISTS ${tableName} (
+										   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+			`api_code` varchar(10) NOT NULL COMMENT '商户编号',
+			`cus_batch` varchar(100) NOT NULL COMMENT '客户批次号',
+			`request_batch` varchar(255) DEFAULT NULL COMMENT '请求批次',
+			`cust_num` varchar(100) DEFAULT NULL COMMENT '用户唯一编号',
+			`id_card` varchar(255) DEFAULT NULL COMMENT '身份证号',
+			`name` varchar(255) DEFAULT NULL COMMENT '姓名',
+			`cell` varchar(255) DEFAULT NULL COMMENT '电话',
+			`cell_md5` varchar(255) DEFAULT NULL COMMENT '手机号md5',
+			`cell_sha256` varchar(255) DEFAULT NULL COMMENT '手机号sha256',
+		    `cell_original` varchar(255) DEFAULT NULL COMMENT '手机号原始值',
+		    `id_card_original` varchar(255) DEFAULT NULL COMMENT '身份证号原始值',
+		    `name_original` varchar(255) DEFAULT NULL COMMENT '姓名原始值',
+			`group_type` varchar(255) DEFAULT NULL COMMENT '场景',
+			`user_type` varchar(255) DEFAULT NULL COMMENT '新场景-替代group_type',
+			`operate_type` varchar(100) DEFAULT NULL COMMENT '操作类型',
+			`register_date` varchar(50) DEFAULT NULL COMMENT '日期',
+			`reserve_field1` text DEFAULT NULL COMMENT '预留字段1',
+			`reserve_field2` text DEFAULT NULL COMMENT '预留字段2',
+			`create_time` datetime DEFAULT NULL COMMENT '创建时间',
+			`update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
+			`applet_date` varchar(50) DEFAULT NULL COMMENT '执行日期',
+			`status` int(1) DEFAULT '1' COMMENT '预留剔除状态字段 1：正常，2：剔除',
+			`fail_type` varchar(50) DEFAULT NULL COMMENT '类型 MD5、Sha256',
+			`applet_time` datetime DEFAULT NULL COMMENT '用户上传时间',
+			`is_task` int(11) DEFAULT '1' COMMENT '是否导入任务数据 1-未导入;2-导入',
+			`task_time` datetime DEFAULT NULL COMMENT '导入任务用户表时间',
+			`is_repeat` int(11) DEFAULT '1' COMMENT '是否重复 1-未去重; 2-不重复;3-重复;',
+			`fingerprint` bigint default null comment '数据指纹，数据唯一标识',
+			PRIMARY KEY (`id`),
+			KEY `idx_appletDate` (`applet_date`),
+		    KEY `idx_marketing_sync_code_request` (`api_code`,`request_batch`),
+			KEY `idx_marketing_sync_code_cell_t_n_u_r_a` (`cell`,`cus_batch`,`cust_num`,`user_type`,`is_repeat`,`applet_date`),
+			KEY `idx_marketing_sync_code_cust_t_u_r_a` (`cust_num`,`cus_batch`,`user_type`,`is_repeat`,`applet_date`),
+		    KEY `idx_appletTime` (`applet_time`),
+			KEY `idx_ad_ut_s` (`applet_date`,`user_type`,`status`),
+			KEY `idx_reqid` (`request_batch`),
+			UNIQUE KEY `uk_bmarketingsync_fingerprint` (`fingerprint`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_ID_CACHE=1 COMMENT='客户上传数据表'
+	</update>
+
+<update id="createMarketingTransferUserTable" parameterType="java.lang.String">
+	CREATE TABLE IF NOT EXISTS ${tableName} (
+	  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+	  `cid` varchar(10) NOT NULL COMMENT 'cid',
+	  `t_cid` varchar(10) default null  comment '分表cid',
+	  `api_code` varchar(10) NOT NULL COMMENT '商户编号',
+	  `request_id` varchar(100) DEFAULT NULL COMMENT '请求批次号',
+	  `org_name` varchar(255) DEFAULT NULL COMMENT '机构名称',
+	  `cust_num` varchar(100) DEFAULT NULL COMMENT '客户案件编号',
+	  `source` varchar(100) DEFAULT NULL COMMENT '数据源',
+	  `user_type` varchar(100) DEFAULT NULL COMMENT '机构运营场景',
+	  `type` varchar(100) DEFAULT NULL COMMENT '转化节点',
+	  `custom_name` varchar(100) DEFAULT NULL COMMENT '客群名称',
+	  `if_register` varchar(3) DEFAULT NULL COMMENT '是否注册 1是0否',
+	  `register_time` varchar(30) DEFAULT NULL COMMENT '注册时间 yyyy-mm-dd hh:mm:ss:SSS',
+	  `if_login` varchar(3) DEFAULT NULL COMMENT '是否登录 1是0否',
+	  `login_time` varchar(30) DEFAULT NULL COMMENT '登录时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `if_apply` varchar(3) DEFAULT NULL COMMENT '是否进件 1是0否',
+	  `apply_dt` varchar(30) DEFAULT NULL COMMENT '进件时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `apply_time` varchar(30) DEFAULT NULL COMMENT '审批时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `apply_result` varchar(3) DEFAULT NULL COMMENT '审批结果 1是0否',
+	  `refuse_time` varchar(30) DEFAULT NULL COMMENT '拒绝时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `audit_time` varchar(30) DEFAULT NULL COMMENT '授信时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `audit_amount` varchar(20) DEFAULT NULL COMMENT '授信总金额',
+	  `if_lent` varchar(3) DEFAULT NULL COMMENT '是否提现 1是0否',
+	  `lent_time` varchar(30) DEFAULT NULL COMMENT '提现时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `lent_amount` varchar(20) DEFAULT NULL COMMENT '提现金额',
+	  `unlent_amount` varchar(20) DEFAULT NULL COMMENT '未提现额度',
+	  `if_settle` varchar(3) DEFAULT NULL COMMENT '是否结清 1是0否',
+	  `settle_time` varchar(30) DEFAULT NULL COMMENT '结清时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `activity` varchar(100) DEFAULT NULL COMMENT '活动类型',
+	  `case_status` varchar(100) DEFAULT NULL COMMENT '结案状态 0未结案1已结案',
+	  `case_effective` varchar(3) DEFAULT NULL COMMENT '案件有效性 0无效1有效',
+	  `if_transform` varchar(3) DEFAULT NULL COMMENT '是否转化 1是0否',
+	  `transform_time` varchar(30) DEFAULT NULL COMMENT '转化时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `insert_time` varchar(30) DEFAULT NULL COMMENT '创建时间yyyy-mm-dd hh:mm:ss:SSS',
+	  `reserve_field1` longtext DEFAULT NULL COMMENT '业务保留字段1',
+	  `reserve_field2` longtext DEFAULT NULL COMMENT '业务保留字段2',
+		`create_time` datetime DEFAULT NULL COMMENT '创建时间',
+		`update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+		`request_data` varchar
+	(
+		20
+	) DEFAULT NULL COMMENT '客户请求日期',
+		`request_time` varchar
+	(
+		20
+	) DEFAULT NULL COMMENT '客户请求时间',
+	 `fingerprint` bigint default null comment '数据指纹，数据唯一标识',
+		PRIMARY KEY
+	(
+		`id`
+	),
+		KEY `idx_unique_transfer_syncinfo_request_id`
+	(
+		`request_id`
+	),
+		KEY `idx_transfer_syncinfo_code`
+	(
+		`api_code`
+	),
+		KEY `idx_transfer_syncinfo_cust_num`
+	(
+		`cust_num`
+	),
+		UNIQUE KEY `uk_bmarketingtransfersync_fingerprint` (`fingerprint`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE =utf8_bin COMMENT='客户转化数据记录表';
+</update>
+
+	<select id="findCustNumCellUserTypeScoreDatePage" resultType="com.br.marketing.entity.MarketingSyncUser">
+		select t1.cust_num, t1.cell, t1.user_type, t1.create_time, t1.applet_time
+		from b_marketing_sync_${apiCode} as t1,
+		(select id
+		from b_marketing_sync_${apiCode}
+		where
+		<choose>
+			<when test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+				<![CDATA[ create_time > #{beginTime} and create_time <= #{endTime}]]>
+			</when>
+			<otherwise>
+				<![CDATA[ create_time > #{beginTime}]]>
+			</otherwise>
+		</choose>
+		order by create_time, id limit ${page*2000},2000) as t2
+		where t1.id = t2.id;
+	</select>
+
+
+	<select id="selectLatestSyncUser" resultType="com.br.marketing.entity.MarketingSyncUser">
+		select * from b_marketing_sync_${apiCode}
+		where cust_num = #{custNum} and status = 1
+		<if test="userType != null and userType != ''">
+			and user_type = #{userType}
+		</if>
+		order by create_time desc limit 1
+	</select>
+
+	<update id="createUserLabelTable" parameterType="java.lang.String">
+		CREATE TABLE
+			IF NOT EXISTS ${tableName} (
+			`id` bigint(20) NOT NULL AUTO_INCREMENT,
+			`label_id` bigint(20) NOT NULL COMMENT '标签任务表Id',
+			`sync_id` bigint(20) NOT NULL COMMENT '上传任务表Id',
+			`api_code` varchar(10) NOT NULL COMMENT '商户编号',
+			`user_type` varchar(255) DEFAULT NULL COMMENT '新场景-替代group_type',
+			`applet_date` varchar(50) DEFAULT NULL COMMENT '执行日期',
+			`status` int(1) DEFAULT '1' COMMENT '预留剔除状态字段 1：正常，2：剔除',
+			`is_repeat` int(11) DEFAULT '1' COMMENT '是否重复 1-未去重; 2-不重复;3-重复;',
+			`create_time` datetime DEFAULT NULL COMMENT '创建时间',
+			`update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP  COMMENT '修改时间',
+			PRIMARY KEY (`id`),
+			KEY `idx_sync_id` (`sync_id`),
+			KEY `idx_ad_ut_s` (`label_id`,`applet_date`,`user_type`,`status`),
+			UNIQUE KEY `uk_label_sync_id` (`label_id`,`sync_id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_ID_CACHE=1 COMMENT='客户上传数据标签明细表'
+	</update>
+
+
+</mapper>

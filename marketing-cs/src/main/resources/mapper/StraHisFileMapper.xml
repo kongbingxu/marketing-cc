@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.StraHisFileMapper" >
+
+    <select id="getExtendInfosByFileIds" resultType="com.br.marketing.vo.TaskExtendInfoVO">
+        select shf.id as fileId, bmte.cus_task_id as cusTaskId ,bmte.group_type as groupType,bmte.upload_time as uploadTime
+            from stra_his_file shf
+            left join b_marketing_task bmt on shf.batch_number = bmt.batch_number
+            left join b_marketing_task_extend bmte on bmte.task_id = bmt.id
+        WHERE shf.id in
+              <foreach collection="fileIds" open="(" separator="," close=")" item="fileId">
+                #{fileId}
+              </foreach>
+    </select>
+
+    <select id="getFileByRule" resultType="com.br.marketing.entity.StraHisFile">
+        select shf.*
+        from stra_his_file shf
+        left join b_marketing_task btbp on shf.batch_number = btbp.batch_number
+        left join b_marketing_task_extend bmte on btbp.id = bmte.task_id
+        left join b_score_rule_config bsrc on bsrc.id = bmte.rule_id
+        where shf.create_time >=#{time}
+        <if test="ruleNumber!=null and ruleNumber!=''">
+            and bsrc.rule_name_short =#{ruleNumber}
+        </if>
+        <choose>
+            <when test="isOrNoStatus == 1">
+                and shf.push_status in
+            </when>
+            <when test="isOrNoStatus == 0">
+                and shf.push_status not in
+            </when>
+        </choose>
+        <foreach collection="pushStatusList" open="(" close=")" separator="," item="pushStatus">
+            #{pushStatus}
+        </foreach>
+         and shf.status =2 and btbp.monitor_type !=2 order by shf.create_time desc limit 1
+    </select>
+
+    <select id="getFileById" resultType="java.lang.String">
+        select bsrc.rule_name_short
+        from stra_his_file shf
+        left join b_marketing_task btbp on shf.batch_number = btbp.batch_number
+        left join b_marketing_task_extend bmte on btbp.id = bmte.task_id
+        left join b_score_rule_config bsrc on bsrc.id = bmte.rule_id
+        where shf.id in
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        order by shf.create_time desc
+    </select>
+
+    <select id="getFileByruleNameShorts" resultType="com.br.marketing.vo.TaskTemplateVO">
+        select
+        shf.id as fileId,
+        shf.batch_number as batchNumber,
+        bmtut.user_type  as userType,
+        bmt.task_number  as taskNumber,
+        shf.create_time  as taskCreateTime
+        from stra_his_file shf
+        left join b_marketing_task bmt on shf.batch_number = bmt.batch_number
+        left join b_marketing_task_extend bmte on bmte.task_id = bmt.id
+        left join b_score_rule_config bsrc on bsrc.id = bmte.rule_id
+        left join b_marketing_task_user_type bmtut on shf.batch_number = bmtut.batch_number
+        where
+            bsrc.rule_name_short in
+        <foreach collection="ruleNameShorts" open="(" close=")" separator="," item="ruleNameShort">
+            #{ruleNameShort}
+        </foreach>
+        <if test="apiCode!=null and apiCode!=''">
+            and shf.api_code =#{apiCode}
+        </if>
+        and shf.status = 2
+        order by shf.create_time desc
+    </select>
+
+    <select id="getLatestRecord" resultType="com.br.marketing.entity.StraHisFile">
+        select shf.id, shf.api_code, shf.batch_number
+        from stra_his_file shf inner join b_marketing_task bmt on shf.batch_number = bmt.batch_number
+        where
+            shf.api_code = #{apiCode} and shf.status = 2 and shf.type = 2
+            and date(shf.create_time) = #{scoreDate}
+            and bmt.monitor_type = 1
+        order by shf.create_time desc limit 1
+    </select>
+
+
+    <select id="getTaskbyDataContion" resultType="com.br.marketing.entity.StraHisFile">
+        select shf.id, shf.api_code, shf.batch_number
+        from stra_his_file shf
+            inner join b_marketing_task bmt on shf.batch_number = bmt.batch_number
+            inner join b_marketing_task_extend bmte on bmt.id = bmte.task_id
+        where
+            shf.api_code = #{apiCode} and shf.status = 2 and shf.type = 2
+          and bmte.data_condition like CONCAT('%', #{condition}, '%')
+
+          and bmt.monitor_type = 1
+        order by bmte.create_time desc limit 1
+    </select>
+
+    <select id="getStFileByBatchNumber" resultType="com.br.marketing.entity.StraHisFile">
+        select *
+        from stra_his_file
+        where batch_number = #{batchNumber}
+    </select>
+
+
+    <select id="getCondition" resultType="java.lang.String">
+        select bmte.data_condition
+        from b_marketing_task bmt
+                 inner join b_marketing_task_extend bmte on bmt.id = bmte.task_id
+        where bmt.batch_number = #{batchNumber}
+    </select>
+
+    <select id="getLastTaskByApiCode" resultType="com.br.marketing.entity.StraHisFile">
+        select *
+        from stra_his_file
+        where api_code = #{apiCode}
+        order by create_time desc limit 1
+    </select>
+
+</mapper>

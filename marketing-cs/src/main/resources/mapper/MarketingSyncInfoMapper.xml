@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.MarketingSyncInfoMapper" >
+
+    <select id="getCusBatchByApiAndTime" resultType="java.lang.String">
+        select cus_batch
+        from b_marketing_sync_info
+        where api_code = #{apiCode}
+        <![CDATA[ and create_time >= #{beginTime} and create_time < #{endTime}  ]]>
+        group by cus_batch
+    </select>
+
+    <select id="minSyncId" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_info
+        where api_code = #{apiCode}
+          and cus_batch = #{cusBatch}
+          and status in (2,4)
+        <![CDATA[ and create_time >= #{beginTime} and create_time < #{endTime}  ]]>
+    </select>
+
+    <select id="getDatalimit" resultType="com.br.marketing.entity.MarketingSyncInfo">
+        select *
+        from b_marketing_sync_info
+        where api_code = #{apiCode}
+          and cus_batch = #{cusBatch}
+          and status in (2,4)
+          and id >=#{id}
+        <![CDATA[and create_time >= #{beginTime} and create_time < #{endTime}  ]]>
+        order by id asc limit 200
+    </select>
+
+    <select id="querySynInfoWithActiontikv_" resultType="com.br.marketing.entity.MarketingSyncInfo">
+        select a.id, a.request_batch, a.cus_batch,a.api_code
+        from b_marketing_sync_info a
+        left join b_syn_info_query_action b on (a.id = b.data_id and b.action_date = #{actionDate} )
+        where a.api_code = #{apiCode}
+            <if test="cusBatch != null and cusBatch !=''">
+                and cus_batch = #{cusBatch}
+            </if>
+            and a.status in (2,4)
+            <![CDATA[ and a.create_time >= #{createTimeStart} and a.create_time < #{createTimeEnd}  ]]>
+            and b.data_id is null
+        order by a.id asc
+        limit #{pageSize}
+    </select>
+
+    <update id="createMarketingTransferTable" parameterType="java.lang.String">
+        CREATE TABLE
+            IF NOT EXISTS ${tableName} (
+           `id` BIGINT(20) auto_increment NOT NULL COMMENT '自增主键',
+           `request_id` varchar(100) NULL COMMENT '请求id',
+            `task_id` varchar(100) NULL COMMENT '任务id',
+            `cust_num` varchar(100) NULL COMMENT '客户编号',
+            `group_type` varchar(100) NULL COMMENT '场景',
+            `transform_time` DATETIME NULL COMMENT '转化时间',
+            `create_time` DATETIME NULL COMMENT '入库时间',
+            `reserve_field1` varchar(1000) NULL COMMENT '扩展字段1',
+            `reserve_field2` varchar(1000) NULL COMMENT '扩展字段2',
+            PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='转化表'
+    </update>
+
+    <insert id="insertBatchTransfer" parameterType="java.lang.String">
+        ${execSql}
+    </insert>
+
+    <insert id="insertTransfer" parameterType="com.br.marketing.entity.MarketingTransfer">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into b_marketing_transfer_${apiCode}
+        (request_id,task_id,cust_num,transform_time,create_time,group_type,reserve_field1,reserve_field2)
+        values (#{requestId},#{taskId},#{custNum},#{transformTime},#{createTime},#{groupType},#{reserveField1},#{reserveField2})
+    </insert>
+
+    <select id="selectTransfersByRequestId" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_transfer_${apiCode}
+        where request_id = #{requestId}
+    </select>
+
+    <select id="getPreUserByTaskAndCust" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        where ${conditionTextByTaskIdAndCust}
+    </select>
+    
+    <select id="countRepeat" resultType="java.lang.Long">
+        ${execSql}
+    </select>
+
+    <select id="getSoleValidUser" resultType="com.br.marketing.vo.TodayIdTimeBySoleVo">
+        ${execSql}
+    </select>
+
+    <update id="updateRepeatUserStatus">
+        ${execSql}
+    </update>
+    
+    <select id="getMinIdByRuleScore" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_${apiCode}
+        where <![CDATA[ applet_time >= #{sTimeStr} and applet_time < #{eTimeStr} ]]>
+        and is_repeat in (1,2)
+        and (${whereStr})
+    </select>
+
+    <select id="getMinIdByRuleScoreWithDate" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_${apiCode}
+        where applet_date = #{sDate}
+            <![CDATA[ and applet_time < #{eTimeStr} ]]>
+            and is_repeat in (1,2)
+            and status = 1
+            and (${whereStr})
+    </select>
+
+    <select id="getMinIdByRuleScoreWithValidConfig" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_${apiCode}
+        where status=1
+        <if test="configList != null and configList.size() > 0">
+            and (applet_date, user_type) in
+            <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                (#{item.appletDate}, #{item.userType})
+            </foreach>
+        </if>
+        <if test="validTimeStr != null and validTimeStr !=''">
+            <![CDATA[ and applet_time < #{validTimeStr} ]]>
+        </if>
+        and is_repeat in (1,2)
+        and (${whereStr})
+    </select>
+
+    <select id="queryUserTypeListLabelWithDatetikv_" resultType="java.lang.String">
+        select distinct(user_type)
+        from b_marketing_sync_label_${apiCode}
+        where is_repeat in (1,2)
+        and status = 1
+        <if test="sDate != null and sDate !=''">
+            and applet_date = #{sDate}
+        </if>
+        <if test="sDate != null and sDate !=''">
+            <![CDATA[ and applet_time < #{eTimeStr} ]]>
+        </if>
+        and (${whereStr})
+    </select>
+
+    <select id="queryUserTypeListWithDatetikv_" resultType="java.lang.String">
+        select distinct(user_type)
+        from b_marketing_sync_${apiCode}
+        where is_repeat in (1,2)
+            and status = 1
+            <if test="sDate != null and sDate !=''">
+                and applet_date = #{sDate}
+            </if>
+            <if test="sDate != null and sDate !=''">
+                <![CDATA[ and applet_time < #{eTimeStr} ]]>
+            </if>
+            and (${whereStr})
+    </select>
+
+    <select id="queryUserTypeListWithValidConfigtikv_" resultType="java.lang.String">
+        select distinct(user_type)
+        from b_marketing_sync_${apiCode}
+        where is_repeat in (1,2)
+        and status = 1
+        <if test="configList != null and configList.size() > 0">
+            and (applet_date, user_type) in
+            <foreach collection="configList" item="item" open="(" close=")" separator=",">
+                (#{item.appletDate}, #{item.userType})
+            </foreach>
+        </if>
+        <if test="validTimeStr != null and validTimeStr !=''">
+            <![CDATA[ and applet_time < #{validTimeStr} ]]>
+        </if>
+        and (${whereStr})
+    </select>
+
+    <select id="countByRuleScoreWithDate" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_${apiCode}
+        where ${whereStr}
+            and is_repeat in (1,2)
+          and status = 1
+    </select>
+
+    <select id="countByRuleScoreWithDatetiflash_" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_${apiCode}
+        where ${whereStr}
+            and is_repeat in (1,2)
+          and status = 1
+    </select>
+
+    <select id="countByRuleScoreLabelWithDate" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_label_${apiCode}
+        where ${whereStr}
+          and is_repeat in (1,2)
+          and status = 1
+          and label_id = #{labelId}
+    </select>
+
+    <select id="countByRuleScoreLabelWithDatetiflash_" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_label_${apiCode}
+        where ${whereStr}
+          and is_repeat in (1,2)
+          and status = 1
+          and label_id = #{labelId}
+    </select>
+
+    <select id="minIdRuleScoreWithDate" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_${apiCode}
+        where ${whereStr}
+          and is_repeat in (1,2)
+          and status = 1
+    </select>
+
+    <select id="minIdRuleScoreWithDatetiflash_" resultType="java.lang.Long">
+        select min(id)
+        from b_marketing_sync_${apiCode}
+        where ${whereStr}
+          and is_repeat in (1,2)
+          and status = 1
+    </select>
+
+    <select id="minIdRuleScoreLabelWithDate" resultType="java.lang.Long">
+        select min(sync_id)
+        from b_marketing_sync_label_${apiCode}
+        where ${whereStr}
+          and is_repeat in (1,2)
+          and status = 1
+          and label_id = #{labelId}
+    </select>
+
+    <select id="minIdRuleScoreLabelWithDatetiflash_" resultType="java.lang.Long">
+        select min(sync_id)
+        from b_marketing_sync_label_${apiCode}
+        where ${whereStr}
+          and is_repeat in (1,2)
+          and status = 1
+          and label_id = #{labelId}
+    </select>
+
+    <select id="selectDataRuleScoreWithDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where ${whereStr}
+          <if test="id != null and id >0">
+            <![CDATA[  and id>#{id} ]]>
+          </if>
+        <if test="minUnCompleteId != null">
+            <![CDATA[  and id>=#{minUnCompleteId} ]]>
+        </if>
+        <if test="maxId != null">
+            <![CDATA[  and id<=#{maxId} ]]>
+        </if>
+        and is_repeat in (1,2)
+        and status = 1
+        order by id asc limit ${pageSize};
+    </select>
+
+    <select id="selectDataRuleScoreWithDatetiflash_" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where ${whereStr}
+        <if test="id != null and id >0">
+            <![CDATA[ and id>#{id} ]]>
+        </if>
+        <if test="minUnCompleteId != null">
+            <![CDATA[ and id>=#{minUnCompleteId} ]]>
+        </if>
+        <if test="maxId != null">
+            <![CDATA[ and id<=#{maxId} ]]>
+        </if>
+        and is_repeat in (1,2)
+        and status = 1
+        order by id asc limit ${pageSize};
+    </select>
+
+    <select id="selectDataRuleScoreLabelWithDate" resultType="com.br.marketing.entity.MarketingSyncLabelUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where id in
+        <foreach collection="syncIdList" item="syncId" separator="," open="(" close=")">
+            #{syncId}
+        </foreach>
+    </select>
+
+    <select id="selectDataRuleScoreLabelWithDatetiflash_" resultType="com.br.marketing.entity.MarketingSyncLabelUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where id in
+        <foreach collection="syncIdList" item="syncId" separator="," open="(" close=")">
+            #{syncId}
+        </foreach>
+    </select>
+    
+    <select id="getMaxIdByRuleScore" resultType="java.lang.Long">
+        select max(id)
+        from b_marketing_sync_${apiCode}
+        where <![CDATA[ applet_time >= #{sTimeStr} and applet_time < #{eTimeStr} ]]>
+        and is_repeat in (1,2)
+        and (${whereStr})
+    </select>
+
+    <select id="countByPreUserWithRule" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_sync_${apiCode}
+        where <![CDATA[ applet_time >= #{sTimeStr}and applet_time < #{eTimeStr} ]]>
+        and is_repeat in (1,2)
+          and (${whereStr})
+    </select>
+
+    <select id="getSyncUserByRuleScore" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where <![CDATA[ applet_time >= #{sTimeStr} and applet_time < #{eTimeStr} and id >= #{minId} and id <= #{maxId}]]>
+        and is_repeat in (1,2)
+        and (${whereStr}) order by id asc
+    </select>
+
+    <select id="getPreUserByInCust" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select cus_batch, cust_num, id_card, name, cell,cell_md5,cell_sha256, user_type, reserve_field1, reserve_field2, create_time,
+        update_time,applet_date,applet_time
+        from b_marketing_sync_${apiCode}
+        <where>
+            cust_num in
+            <foreach collection="custs" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getPreUserByInCustAndStatus" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select cus_batch, cust_num, id_card, name, cell, user_type, reserve_field1, reserve_field2, create_time,
+        update_time,applet_date,applet_time
+        from b_marketing_sync_${apiCode}
+        <where>
+            cust_num in
+            <foreach collection="custs" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            and status=1
+        </where>
+    </select>
+
+    <select id="getPreUserByInCustWithNoFail" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select cus_batch, cust_num, id_card, name, cell, user_type, reserve_field1, reserve_field2, create_time,
+        update_time,applet_date,applet_time
+        from b_marketing_sync_${apiCode}
+        <where>
+            cust_num in
+            <foreach collection="custs" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            and IFNULL(fail_type,'') = '' and status=1
+        </where>
+    </select>
+
+    <select id="countTransferFile" resultType="java.lang.Integer">
+        select count(1)
+        from b_marketing_transfer_${apiCode}
+        where group_type = #{groupType} and reserve_field1 in
+          <foreach collection="fileTypes" item="fileType" open="(" separator="," close=")" >
+                #{fileType}
+          </foreach>
+         <![CDATA[ and create_time >= #{beginTime} and create_time < #{endTime} ]]>
+    </select>
+
+    <select id="getTransferFileUser" resultType="com.br.marketing.vo.TransferUserVO">
+        select * from
+        b_marketing_transfer_${apiCode}
+        where  group_type = #{groupType}
+          <if test="minId != null and minId >0">
+              and id >=#{minId}
+          </if>
+          and reserve_field1 in
+        <foreach collection="fileTypes" item="fileType" open="(" separator="," close=")" >
+            #{fileType}
+        </foreach>
+        <![CDATA[ and create_time >= #{beginTime} and create_time < #{endTime} ]]>
+        order by id asc limit 5000;
+    </select>
+
+    <select id="getTransferFileUserByTime" resultType="com.br.marketing.vo.TransferUserVO">
+        select * from
+        b_marketing_transfer_${apiCode}
+        where
+        <if test="minId != null and minId >0">
+            id >=#{minId} and
+        </if>
+        <![CDATA[ create_time >= #{beginTime} and create_time < #{endTime} ]]>
+        order by id asc limit 5000;
+    </select>
+
+    <select id="getSyncUserByTaskAndCust" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from
+            b_marketing_sync_${apiCode}
+        where cus_batch in
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+        and cust_num in
+        <foreach collection="custNums" item="custNum" open="(" separator="," close=")">
+            #{custNum}
+        </foreach>
+    </select>
+
+    <select id="getNewestByCusnum" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{caseNum}
+        order by applet_time desc limit 1;
+    </select>
+
+    <select id="getNewestByCusnumAndStatus" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{caseNum}
+          and status = 1
+        order by applet_time desc limit 1;
+    </select>
+
+    <select id="getUserTypeLatestByCustNum" resultType="java.lang.String">
+        select user_type
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+        order by create_time desc limit 0,1
+    </select>
+
+    <select id="getTaskIdLatestByCustNum" resultType="java.lang.String">
+        select cus_batch
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+          and user_type = #{userType}
+        order by create_time desc limit 0,1
+    </select>
+
+    <select id="getAppletTimeByCustNumAndUserType" resultType="java.lang.String">
+        select applet_time
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+          and user_type = #{userType}
+        order by create_time desc limit 0,1
+    </select>
+
+    <select id="getCreatTimeByCustNumAndUserType" resultType="java.util.Date">
+        select create_time
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+          and user_type = #{userType}
+        order by create_time desc limit 0,1
+    </select>
+
+    <select id="getTaskIdByCustNumNotLikeUpload" resultType="java.lang.String">
+        select cus_batch
+        from b_marketing_sync_${apiCode}
+        where cust_num = #{custNum}
+            and cus_batch not like concat("%", "_upload")
+        order by create_time desc limit 1
+    </select>
+
+
+    <select id="getMarketingSyncMaxIdByAppletDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select max(id) as id from
+            b_marketing_sync_${apiCode}
+        where api_code=#{apiCode} and applet_date = #{appletDate} and status =2 and cell="FQΒ4g";
+    </select>
+
+    <select id="getMarketingSyncMinIdByAppletDate" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select min(id) as id from
+            b_marketing_sync_${apiCode}
+        where api_code=#{apiCode} and applet_date = #{appletDate} and status =2 and cell="FQΒ4g";
+    </select>
+    <select id="getByMaxIdAndMinId" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select id,api_code,cus_batch,cust_num,cell,applet_date,status,fail_type,update_time from
+            b_marketing_sync_${apiCode}
+        where api_code=#{apiCode} and  id <![CDATA[>]]> #{beginId}  and id <![CDATA[<=]]>  #{endIdLe}  and status = 2 and cell="FQΒ4g"  order by id;
+    </select>
+    <select id="getCellFromCurrent" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select id,api_code,cus_batch,cust_num,cell,applet_date,status,fail_type from
+            b_marketing_sync_${apiCode}
+        where api_code=#{apiCode} and cust_num = #{custNum} and status = 1 order by create_time desc limit 1;
+    </select>
+    <!--修改数据-->
+    <update id="updateBySyncHaLuo">
+        UPDATE b_marketing_sync_${apiCode}
+        set update_time=#{marketingSync.updateTime},
+            reserve_field2=#{marketingSync.reserveField2},
+            cell=#{marketingSync.cell},
+            status=#{marketingSync.status},
+            fail_type=#{marketingSync.failType}
+        where id=#{id} and api_code=#{apiCode}
+    </update>
+    <update id="updateBySyncHaLuoRemark">
+        UPDATE b_marketing_sync_${apiCode}
+        set reserve_field2=#{marketingSync.reserveField2}
+        where id = #{id}
+          and api_code = #{apiCode}
+    </update>
+    <select id="selectCountError" resultType="java.lang.Integer">
+        select count(*)
+        from b_marketing_sync_${apiCode}
+        where api_code = #{apiCode}
+          and applet_date = #{appletDate}
+          and status = 2
+          and cell = "FQΒ4g";
+    </select>
+    <select id="getNewestPreUserByCell" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cell = #{cell}
+        order by create_time desc limit 1;
+    </select>
+    <select id="getNewestPreUserByCellAndStatus" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cell = #{cell}
+          and status = 1
+        order by create_time desc limit 1;
+    </select>
+
+    <select id="getCustNumAppletDateByCustNumStart" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where cust_num in
+            <foreach collection="custNums" item="custNum" separator="," open="(" close=")">
+                #{custNum}
+            </foreach>
+        <if test="startDate !=null and startDate !=''">
+            and applet_date >= #{startDate}
+        </if>
+    </select>
+
+    <select id="getVaildUserByRequestId" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select *
+        from b_marketing_sync_${apiCode}
+        where request_batch = #{requestId}
+          and status = 1;
+    </select>
+    <select id="getSmyDataByGroupType" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        where TO_DAYS(create_time) = TO_DAYS(NOW()) and  group_type = #{groupType}
+        and status = 1 order by id desc;
+    </select>
+
+    <select id="getUnresolvedCount" resultType="java.lang.Integer">
+        select count(id)
+        from b_marketing_sync_info
+        where api_code = #{apiCode}
+           <![CDATA[ AND create_time >= #{startDate} and create_time < #{endDate} ]]>
+          and status = 1
+    </select>
+    <select id="getAppletDateByCusBatch" resultType="java.lang.String">
+        select applet_date from b_marketing_sync_${apiCode}
+        where cus_batch = #{cusBatch}
+        and status = 1 limit 1
+    </select>
+    <select id="getCusBatchByAppletDate" resultType="java.lang.String">
+        select cus_batch from b_marketing_sync_${apiCode}
+        where applet_date = #{appletDate}
+        group by cus_batch;
+    </select>
+
+    <select id="getDataByIdList" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        where id in
+        <foreach collection="idList" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and status = 1 and is_repeat in (1,2);
+    </select>
+
+    <select id="getMarketingSyncInfoByDate" resultType="com.br.marketing.entity.MarketingSyncInfo">
+        SELECT *
+        FROM b_marketing_sync_info
+        WHERE api_code = #{apiCode}
+        AND DATE_FORMAT(create_time, '%Y-%m-%d') = #{appletDate}
+        <if test="actualNum != null">
+            and actual_num >=#{actualNum}
+        </if>
+        LIMIT 1
+    </select>
+
+    <select id="getMarketingSyncInfoByRequestBatch" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select
+            *
+        from  b_marketing_sync_${apiCode}
+        where request_batch = #{requestBatch}
+    </select>
+
+    <select id="getByApiCodeAndRequestBatch" resultType="com.br.marketing.entity.MarketingSyncInfo">
+        select
+            *
+        from b_marketing_sync_info
+        where api_code = #{apiCode}
+        and request_batch = #{requestBatch}
+        limit 1
+    </select>
+
+    <select id="getMarketingSyncByCondition" resultType="com.br.marketing.entity.MarketingSyncUser">
+        select * from b_marketing_sync_${apiCode}
+        <where>
+            <if test="operateType != null">
+                and operate_type = #{operateType}
+            </if>
+            <if test="appletDate != null">
+                and applet_date = #{appletDate}
+            </if>
+            <if test="userType != null">
+                and user_type = #{userType}
+            </if>
+            <if test="createTime != null">
+                and create_time <![CDATA[<=]]> #{createTime}
+            </if>
+            <if test="filterCondition != null">
+                and ${filterCondition}
+            </if>
+
+            <if test="minId != null and minId >0">
+                and id >#{minId}
+            </if>
+            and status = 1  and is_repeat in (1, 2)
+            order by id asc limit 2000
+        </where>
+    </select>
+
+
+    <select id="getBatchNameByUsertikv_" resultType="java.lang.String">
+        select distinct JSON_UNQUOTE(JSON_EXTRACT(reserve_field1, '$.batchName')) from
+        b_marketing_sync_${apiCode}
+        where
+        (applet_date, user_type) in
+        <foreach collection="syncReportList" item="item" open="(" close=")" separator=",">
+            (#{item.appletDate}, #{item.userType})
+        </foreach>
+        <if test="filterCondition != null">
+            AND ${filterCondition}
+        </if>
+        AND status = 1 AND is_repeat in (1, 2)
+    </select>
+
+    <!-- 自动化巡检：上传场景 - 前一天08:00快照（单表） -->
+    <select id="getLastDay8DataByApiCode" resultType="com.br.marketing.dto.autocheck.CheckUploadSyncDataDto">
+        select
+            id,
+            api_code as apiCode,
+            cus_batch as cusBatch,
+            request_batch as requestBatch,
+            cust_num as custNum,
+            id_card as idCard,
+            name,
+            cell,
+            cell_md5 as cellMd5,
+            cell_sha256 as cellSha256,
+            cell_original as cellOriginal,
+            id_card_original as idCardOriginal,
+            name_original as nameOriginal,
+            group_type as groupType,
+            user_type as userType,
+            operate_type as operateType,
+            reserve_field1 as reserveField1,
+            reserve_field2 as reserveField2,
+            status,
+            fail_type as failType,
+            is_task as isTask,
+            is_repeat as isRepeat,
+            fingerprint,
+            DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as snapTime
+        from b_marketing_sync_${apiCode}
+        where
+          applet_date = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '%Y-%m-%d')
+          and create_time <![CDATA[>=]]> DATE_ADD(DATE_SUB(CURDATE(), INTERVAL 1 DAY), INTERVAL 8 HOUR)
+          and create_time <![CDATA[<]]> DATE_ADD(
+              DATE_ADD(DATE_SUB(CURDATE(), INTERVAL 1 DAY), INTERVAL 8 HOUR),
+              INTERVAL 5 MINUTE
+          )
+        order by create_time desc, id desc
+        limit 1
+    </select>
+
+    <!-- 自动化巡检：上传场景 - 最新快照（单表） -->
+    <select id="getLatestDataByApiCode" resultType="com.br.marketing.dto.autocheck.CheckUploadSyncDataDto">
+        select
+            id,
+            api_code as apiCode,
+            cus_batch as cusBatch,
+            request_batch as requestBatch,
+            cust_num as custNum,
+            id_card as idCard,
+            name,
+            cell,
+            cell_md5 as cellMd5,
+            cell_sha256 as cellSha256,
+            cell_original as cellOriginal,
+            id_card_original as idCardOriginal,
+            name_original as nameOriginal,
+            group_type as groupType,
+            user_type as userType,
+            operate_type as operateType,
+            reserve_field1 as reserveField1,
+            reserve_field2 as reserveField2,
+            status,
+            fail_type as failType,
+            is_task as isTask,
+            is_repeat as isRepeat,
+            fingerprint,
+            DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') as snapTime
+        from b_marketing_sync_${apiCode}
+        where applet_date = DATE_FORMAT(CURDATE(), '%Y-%m-%d')
+          and create_time <![CDATA[>=]]> CURDATE()
+          and create_time <![CDATA[<]]> DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        order by create_time desc, id desc
+        limit 1
+    </select>
+
+</mapper>

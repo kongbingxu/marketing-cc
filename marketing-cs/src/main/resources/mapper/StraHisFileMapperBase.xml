@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.br.marketing.mapper.StraHisFileMapper" >
+  <resultMap id="BaseResultMap" type="com.br.marketing.entity.StraHisFile" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="api_code" property="apiCode" jdbcType="VARCHAR" />
+    <result column="batch_number" property="batchNumber" jdbcType="VARCHAR" />
+    <result column="file_path" property="filePath" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="zipFile_name" property="zipfileName" jdbcType="VARCHAR" />
+    <result column="error_file" property="errorFile" jdbcType="VARCHAR" />
+    <result column="expected_num" property="expectedNum" jdbcType="INTEGER" />
+    <result column="upload_time" property="uploadTime" jdbcType="VARCHAR" />
+    <result column="file_size" property="fileSize" jdbcType="VARCHAR" />
+    <result column="actual_num" property="actualNum" jdbcType="INTEGER" />
+    <result column="file_num" property="fileNum" jdbcType="INTEGER" />
+    <result column="sign_file_status" property="signFileStatus" jdbcType="INTEGER" />
+    <result column="zip_status" property="zipStatus" jdbcType="INTEGER" />
+    <result column="md5" property="md5" jdbcType="VARCHAR" />
+    <result column="score_status" property="scoreStatus" jdbcType="INTEGER" />
+    <result column="statistic_file_path" property="statisticFilePath" jdbcType="VARCHAR" />
+    <result column="show_title" property="showTitle" jdbcType="VARCHAR" />
+    <result column="push_type" property="pushType" jdbcType="INTEGER" />
+    <result column="push_status" property="pushStatus" jdbcType="INTEGER" />
+    <result column="index_num" property="indexNum" jdbcType="INTEGER" />
+    <result column="inner_ftp_path" property="innerFtpPath" jdbcType="VARCHAR" />
+    <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+    <result column="offline_file_path" property="offlineFilePath" jdbcType="VARCHAR" />
+    <result column="running_end_time" property="runningEndTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, api_code, batch_number, file_path, create_time, update_time, `status`, `type`, 
+    zipFile_name, error_file, expected_num, upload_time, file_size, actual_num, file_num, 
+    sign_file_status, zip_status, md5, score_status, statistic_file_path, show_title, 
+    push_type, push_status, index_num, inner_ftp_path, file_name, offline_file_path, 
+    running_end_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.br.marketing.entity.StraHisFileExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from stra_his_file
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from stra_his_file
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from stra_his_file
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.br.marketing.entity.StraHisFileExample" >
+    delete from stra_his_file
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.br.marketing.entity.StraHisFile" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into stra_his_file (api_code, batch_number, file_path, 
+      create_time, update_time, `status`, 
+      `type`, zipFile_name, error_file, 
+      expected_num, upload_time, file_size, 
+      actual_num, file_num, sign_file_status, 
+      zip_status, md5, score_status, 
+      statistic_file_path, show_title, push_type, 
+      push_status, index_num, inner_ftp_path, 
+      file_name, offline_file_path, running_end_time
+      )
+    values (#{apiCode,jdbcType=VARCHAR}, #{batchNumber,jdbcType=VARCHAR}, #{filePath,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, 
+      #{type,jdbcType=INTEGER}, #{zipfileName,jdbcType=VARCHAR}, #{errorFile,jdbcType=VARCHAR}, 
+      #{expectedNum,jdbcType=INTEGER}, #{uploadTime,jdbcType=VARCHAR}, #{fileSize,jdbcType=VARCHAR}, 
+      #{actualNum,jdbcType=INTEGER}, #{fileNum,jdbcType=INTEGER}, #{signFileStatus,jdbcType=INTEGER}, 
+      #{zipStatus,jdbcType=INTEGER}, #{md5,jdbcType=VARCHAR}, #{scoreStatus,jdbcType=INTEGER}, 
+      #{statisticFilePath,jdbcType=VARCHAR}, #{showTitle,jdbcType=VARCHAR}, #{pushType,jdbcType=INTEGER}, 
+      #{pushStatus,jdbcType=INTEGER}, #{indexNum,jdbcType=INTEGER}, #{innerFtpPath,jdbcType=VARCHAR}, 
+      #{fileName,jdbcType=VARCHAR}, #{offlineFilePath,jdbcType=VARCHAR}, #{runningEndTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.br.marketing.entity.StraHisFile" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into stra_his_file
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="apiCode != null" >
+        api_code,
+      </if>
+      <if test="batchNumber != null" >
+        batch_number,
+      </if>
+      <if test="filePath != null" >
+        file_path,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="status != null" >
+        `status`,
+      </if>
+      <if test="type != null" >
+        `type`,
+      </if>
+      <if test="zipfileName != null" >
+        zipFile_name,
+      </if>
+      <if test="errorFile != null" >
+        error_file,
+      </if>
+      <if test="expectedNum != null" >
+        expected_num,
+      </if>
+      <if test="uploadTime != null" >
+        upload_time,
+      </if>
+      <if test="fileSize != null" >
+        file_size,
+      </if>
+      <if test="actualNum != null" >
+        actual_num,
+      </if>
+      <if test="fileNum != null" >
+        file_num,
+      </if>
+      <if test="signFileStatus != null" >
+        sign_file_status,
+      </if>
+      <if test="zipStatus != null" >
+        zip_status,
+      </if>
+      <if test="md5 != null" >
+        md5,
+      </if>
+      <if test="scoreStatus != null" >
+        score_status,
+      </if>
+      <if test="statisticFilePath != null" >
+        statistic_file_path,
+      </if>
+      <if test="showTitle != null" >
+        show_title,
+      </if>
+      <if test="pushType != null" >
+        push_type,
+      </if>
+      <if test="pushStatus != null" >
+        push_status,
+      </if>
+      <if test="indexNum != null" >
+        index_num,
+      </if>
+      <if test="innerFtpPath != null" >
+        inner_ftp_path,
+      </if>
+      <if test="fileName != null" >
+        file_name,
+      </if>
+      <if test="offlineFilePath != null" >
+        offline_file_path,
+      </if>
+      <if test="runningEndTime != null" >
+        running_end_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="apiCode != null" >
+        #{apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="batchNumber != null" >
+        #{batchNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null" >
+        #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="zipfileName != null" >
+        #{zipfileName,jdbcType=VARCHAR},
+      </if>
+      <if test="errorFile != null" >
+        #{errorFile,jdbcType=VARCHAR},
+      </if>
+      <if test="expectedNum != null" >
+        #{expectedNum,jdbcType=INTEGER},
+      </if>
+      <if test="uploadTime != null" >
+        #{uploadTime,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null" >
+        #{fileSize,jdbcType=VARCHAR},
+      </if>
+      <if test="actualNum != null" >
+        #{actualNum,jdbcType=INTEGER},
+      </if>
+      <if test="fileNum != null" >
+        #{fileNum,jdbcType=INTEGER},
+      </if>
+      <if test="signFileStatus != null" >
+        #{signFileStatus,jdbcType=INTEGER},
+      </if>
+      <if test="zipStatus != null" >
+        #{zipStatus,jdbcType=INTEGER},
+      </if>
+      <if test="md5 != null" >
+        #{md5,jdbcType=VARCHAR},
+      </if>
+      <if test="scoreStatus != null" >
+        #{scoreStatus,jdbcType=INTEGER},
+      </if>
+      <if test="statisticFilePath != null" >
+        #{statisticFilePath,jdbcType=VARCHAR},
+      </if>
+      <if test="showTitle != null" >
+        #{showTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="pushType != null" >
+        #{pushType,jdbcType=INTEGER},
+      </if>
+      <if test="pushStatus != null" >
+        #{pushStatus,jdbcType=INTEGER},
+      </if>
+      <if test="indexNum != null" >
+        #{indexNum,jdbcType=INTEGER},
+      </if>
+      <if test="innerFtpPath != null" >
+        #{innerFtpPath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null" >
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="offlineFilePath != null" >
+        #{offlineFilePath,jdbcType=VARCHAR},
+      </if>
+      <if test="runningEndTime != null" >
+        #{runningEndTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.br.marketing.entity.StraHisFileExample" resultType="java.lang.Integer" >
+    select count(*) from stra_his_file
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update stra_his_file
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.apiCode != null" >
+        api_code = #{record.apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.batchNumber != null" >
+        batch_number = #{record.batchNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.filePath != null" >
+        file_path = #{record.filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.status != null" >
+        `status` = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.type != null" >
+        `type` = #{record.type,jdbcType=INTEGER},
+      </if>
+      <if test="record.zipfileName != null" >
+        zipFile_name = #{record.zipfileName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.errorFile != null" >
+        error_file = #{record.errorFile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.expectedNum != null" >
+        expected_num = #{record.expectedNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.uploadTime != null" >
+        upload_time = #{record.uploadTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileSize != null" >
+        file_size = #{record.fileSize,jdbcType=VARCHAR},
+      </if>
+      <if test="record.actualNum != null" >
+        actual_num = #{record.actualNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.fileNum != null" >
+        file_num = #{record.fileNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.signFileStatus != null" >
+        sign_file_status = #{record.signFileStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.zipStatus != null" >
+        zip_status = #{record.zipStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.md5 != null" >
+        md5 = #{record.md5,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scoreStatus != null" >
+        score_status = #{record.scoreStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.statisticFilePath != null" >
+        statistic_file_path = #{record.statisticFilePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showTitle != null" >
+        show_title = #{record.showTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pushType != null" >
+        push_type = #{record.pushType,jdbcType=INTEGER},
+      </if>
+      <if test="record.pushStatus != null" >
+        push_status = #{record.pushStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.indexNum != null" >
+        index_num = #{record.indexNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.innerFtpPath != null" >
+        inner_ftp_path = #{record.innerFtpPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileName != null" >
+        file_name = #{record.fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.offlineFilePath != null" >
+        offline_file_path = #{record.offlineFilePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.runningEndTime != null" >
+        running_end_time = #{record.runningEndTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update stra_his_file
+    set id = #{record.id,jdbcType=BIGINT},
+      api_code = #{record.apiCode,jdbcType=VARCHAR},
+      batch_number = #{record.batchNumber,jdbcType=VARCHAR},
+      file_path = #{record.filePath,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      `status` = #{record.status,jdbcType=INTEGER},
+      `type` = #{record.type,jdbcType=INTEGER},
+      zipFile_name = #{record.zipfileName,jdbcType=VARCHAR},
+      error_file = #{record.errorFile,jdbcType=VARCHAR},
+      expected_num = #{record.expectedNum,jdbcType=INTEGER},
+      upload_time = #{record.uploadTime,jdbcType=VARCHAR},
+      file_size = #{record.fileSize,jdbcType=VARCHAR},
+      actual_num = #{record.actualNum,jdbcType=INTEGER},
+      file_num = #{record.fileNum,jdbcType=INTEGER},
+      sign_file_status = #{record.signFileStatus,jdbcType=INTEGER},
+      zip_status = #{record.zipStatus,jdbcType=INTEGER},
+      md5 = #{record.md5,jdbcType=VARCHAR},
+      score_status = #{record.scoreStatus,jdbcType=INTEGER},
+      statistic_file_path = #{record.statisticFilePath,jdbcType=VARCHAR},
+      show_title = #{record.showTitle,jdbcType=VARCHAR},
+      push_type = #{record.pushType,jdbcType=INTEGER},
+      push_status = #{record.pushStatus,jdbcType=INTEGER},
+      index_num = #{record.indexNum,jdbcType=INTEGER},
+      inner_ftp_path = #{record.innerFtpPath,jdbcType=VARCHAR},
+      file_name = #{record.fileName,jdbcType=VARCHAR},
+      offline_file_path = #{record.offlineFilePath,jdbcType=VARCHAR},
+      running_end_time = #{record.runningEndTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.br.marketing.entity.StraHisFile" >
+    update stra_his_file
+    <set >
+      <if test="apiCode != null" >
+        api_code = #{apiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="batchNumber != null" >
+        batch_number = #{batchNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null" >
+        file_path = #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        `type` = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="zipfileName != null" >
+        zipFile_name = #{zipfileName,jdbcType=VARCHAR},
+      </if>
+      <if test="errorFile != null" >
+        error_file = #{errorFile,jdbcType=VARCHAR},
+      </if>
+      <if test="expectedNum != null" >
+        expected_num = #{expectedNum,jdbcType=INTEGER},
+      </if>
+      <if test="uploadTime != null" >
+        upload_time = #{uploadTime,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSize != null" >
+        file_size = #{fileSize,jdbcType=VARCHAR},
+      </if>
+      <if test="actualNum != null" >
+        actual_num = #{actualNum,jdbcType=INTEGER},
+      </if>
+      <if test="fileNum != null" >
+        file_num = #{fileNum,jdbcType=INTEGER},
+      </if>
+      <if test="signFileStatus != null" >
+        sign_file_status = #{signFileStatus,jdbcType=INTEGER},
+      </if>
+      <if test="zipStatus != null" >
+        zip_status = #{zipStatus,jdbcType=INTEGER},
+      </if>
+      <if test="md5 != null" >
+        md5 = #{md5,jdbcType=VARCHAR},
+      </if>
+      <if test="scoreStatus != null" >
+        score_status = #{scoreStatus,jdbcType=INTEGER},
+      </if>
+      <if test="statisticFilePath != null" >
+        statistic_file_path = #{statisticFilePath,jdbcType=VARCHAR},
+      </if>
+      <if test="showTitle != null" >
+        show_title = #{showTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="pushType != null" >
+        push_type = #{pushType,jdbcType=INTEGER},
+      </if>
+      <if test="pushStatus != null" >
+        push_status = #{pushStatus,jdbcType=INTEGER},
+      </if>
+      <if test="indexNum != null" >
+        index_num = #{indexNum,jdbcType=INTEGER},
+      </if>
+      <if test="innerFtpPath != null" >
+        inner_ftp_path = #{innerFtpPath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null" >
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="offlineFilePath != null" >
+        offline_file_path = #{offlineFilePath,jdbcType=VARCHAR},
+      </if>
+      <if test="runningEndTime != null" >
+        running_end_time = #{runningEndTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.br.marketing.entity.StraHisFile" >
+    update stra_his_file
+    set api_code = #{apiCode,jdbcType=VARCHAR},
+      batch_number = #{batchNumber,jdbcType=VARCHAR},
+      file_path = #{filePath,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      `status` = #{status,jdbcType=INTEGER},
+      `type` = #{type,jdbcType=INTEGER},
+      zipFile_name = #{zipfileName,jdbcType=VARCHAR},
+      error_file = #{errorFile,jdbcType=VARCHAR},
+      expected_num = #{expectedNum,jdbcType=INTEGER},
+      upload_time = #{uploadTime,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=VARCHAR},
+      actual_num = #{actualNum,jdbcType=INTEGER},
+      file_num = #{fileNum,jdbcType=INTEGER},
+      sign_file_status = #{signFileStatus,jdbcType=INTEGER},
+      zip_status = #{zipStatus,jdbcType=INTEGER},
+      md5 = #{md5,jdbcType=VARCHAR},
+      score_status = #{scoreStatus,jdbcType=INTEGER},
+      statistic_file_path = #{statisticFilePath,jdbcType=VARCHAR},
+      show_title = #{showTitle,jdbcType=VARCHAR},
+      push_type = #{pushType,jdbcType=INTEGER},
+      push_status = #{pushStatus,jdbcType=INTEGER},
+      index_num = #{indexNum,jdbcType=INTEGER},
+      inner_ftp_path = #{innerFtpPath,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      offline_file_path = #{offlineFilePath,jdbcType=VARCHAR},
+      running_end_time = #{runningEndTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

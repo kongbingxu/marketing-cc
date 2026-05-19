@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.br.marketing.mapper.CarClueRelationalMappingMapper">
+
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO b_car_clue_relational_mapping (
+        api_code,
+        brand_id,
+        brand_name,
+        series_id,
+        series_name,
+        satisfy_province_name,
+        satisfy_city_name,
+        exclude_province_name,
+        exclude_city_name,
+        province_type,
+        matching_type,
+        matching_cause,
+        daily_limited,
+        match_daily_limited,
+        demand_id,
+        applet_date,
+        create_time,
+        update_time
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.apiCode, jdbcType=VARCHAR},
+            #{item.brandId, jdbcType=INTEGER},
+            #{item.brandName, jdbcType=VARCHAR},
+            #{item.seriesId, jdbcType=INTEGER},
+            #{item.seriesName, jdbcType=VARCHAR},
+            #{item.satisfyProvinceName, jdbcType=VARCHAR},
+            #{item.satisfyCityName, jdbcType=VARCHAR},
+            #{item.excludeProvinceName, jdbcType=VARCHAR},
+            #{item.excludeCityName, jdbcType=VARCHAR},
+            #{item.provinceType, jdbcType=INTEGER},
+            #{item.matchingType, jdbcType=INTEGER},
+            #{item.matchingCause, jdbcType=VARCHAR},
+            #{item.dailyLimited, jdbcType=INTEGER},
+            #{item.matchDailyLimited, jdbcType=INTEGER},
+            #{item.demandId, jdbcType=INTEGER},
+            DATE_FORMAT(NOW(), '%Y-%m-%d'),
+            DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'),
+            DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
+            )
+        </foreach>
+    </insert>
+
+    <select id="getMaxCleanDate" resultType="java.lang.String">
+        select max(applet_date)
+        from b_car_clue_relational_mapping
+        where is_del = 1
+    </select>
+
+    <insert id="insertSql">
+        ${querySql}
+    </insert>
+
+    <select id="selectList" resultType="com.br.marketing.vo.CarClueChannelVo">
+        select
+        id,
+        api_code,
+        brand_id as brandId,
+        brand_name as brandName,
+        series_id as seriesId,
+        series_name as seriesName,
+        satisfy_province_name as satisfyProvinceName,
+        satisfy_city_name as satisfyCityName,
+        exclude_province_name as excludeProvinceName,
+        exclude_city_name as excludeCityName,
+        province_type as provinceType,
+        demand_id as demandId,
+        daily_limited as dailyLimited,
+        create_time as createTime
+        from b_car_clue_relational_mapping
+        <where>
+            is_del = 1
+            <if test="maxDate !=null and maxDate!=''">
+                and applet_date = #{maxDate}
+            </if>
+            <if test="cluePushChannel !=null and cluePushChannel!=''">
+                and api_code = #{cluePushChannel}
+            </if>
+            <if test="search !=null and search!=''">
+                and (
+                brand_name like concat('%', #{search},'%')
+                or series_name like concat('%', #{search},'%')
+                or satisfy_province_name like concat('%', #{search},'%')
+                or satisfy_city_name like concat('%', #{search},'%')
+                or exclude_province_name like concat('%', #{search},'%')
+                or exclude_city_name like concat('%', #{search},'%')
+                )
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="getMaxCleanDateByApiCode" resultType="java.lang.String">
+        select max(applet_date)
+        from b_car_clue_relational_mapping
+        where is_del = 1
+        <if test="cluePushChannel !=null and cluePushChannel!=''">
+            and api_code = #{cluePushChannel}
+        </if>
+    </select>
+
+</mapper>
